@@ -74,6 +74,9 @@ Route::get('/descuentos/buscar', [DescuentosInicioController::class, 'buscarProd
 // Ruta para acceder a la vista de productos con datos proporcionados por ProductosVentasController
 Route::get('/productosVentas', [ProductosVentasController::class, 'index'])->name('productosVentas.index');
 Route::get('/productodetalle/{id}', [ProductosVentasController::class, 'show'])->name('productosVentas.show');
+// Ruta para mostrar detalles del producto
+Route::get('/productos/{id}', [ProductosVentasController::class, 'show'])->name('productos.show');
+
 Route::get('/buscar-productos', [ProductosVentasController::class, 'buscarProductos'])->name('productos.buscar');
 Route::get('/buscarProductosPorCategoria/{categoriaId}', [ProductosVentasController::class, 'buscarProductosPorCategoria'])->name('productos.buscarPorCategoria');
 Route::get('/servicios/{id}', [GestionSitioController::class, 'verServicio'])->name('servicios.ver');
@@ -87,6 +90,7 @@ Route::get('/productodetalle', function () {
 });
 Route::get('/contacto', [ContactoController::class, 'showForm'])->name('contacto.show');
 Route::post('/contacto', [ContactoController::class, 'sendContactForm'])->name('contacto.send');
+
 // Rutas que requieren autenticación
 Route::middleware('auth')->group(function () {
     Route::get('/perfiluser', [UsuarioController::class, 'perfilUsuarioComun'])->name('perfiluser');

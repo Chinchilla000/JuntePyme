@@ -1,254 +1,205 @@
 @include('layoutsprincipal.header')
-@include('layoutsprincipal.nav')
-<br>
-<script src="{{ asset('js/app.js') }}"></script>
-<div class="container mt-5">
-    <h1 class="mb-4">Checkout</h1>
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+
+
+
+
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Checkout</span>
+                </nav>
+            </div>
         </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-    <style>
-         @media (max-width: 767px) {
-    #checkoutItems img {
-        width: 40px;
-    }
+    </div>
+    <!-- Breadcrumb End -->
 
-    #checkoutItems span {
-        font-size: 14px;
-    }
 
-    #checkoutSubtotal, #checkoutTotal, #checkoutDiscount {
-        font-size: 16px;
-    }
-
-    .btn-lg {
-        font-size: 16px;
-        padding: 10px 16px;
-    }
-
-    .btn-mobile {
-        width: 100%;
-        font-size: 18px;
-        padding: 12px;
-    }
-}
-    </style>
-    <div class="row">
-        <div class="col-md-8 order-2 order-md-1">
-            <h3>Datos del Comprador</h3>
-
-            @php
-                $user = Auth::user();
-                $firstName = old('firstName', $user ? ($user->userInformation->nombre ?? $user->name) : '');
-                $lastName = old('lastName', $user ? ($user->userInformation->apellido ?? '') : '');
-                $phone = old('phone', $user ? ($user->userInformation->telefono ?? '') : '');
-                $rut = old('rut', $user ? ($user->userInformation->rut ?? '') : '');
-                $email = old('email', $user ? $user->email : '');
-                $mascotaDeCumpleanos = $user ? $user->mascotas()->whereDate('fecha_cumpleanos', today())->first() : null;
-                $birthdayDiscountUsed = $user ? \App\Models\BirthdayDiscount::where('user_id', $user->id)->where('fecha_uso', today())->exists() : false;
-            @endphp
-
-            <div class="form-group mt-3">
-                <label for="firstName">Nombre</label>
-                <input type="text" class="form-control" id="firstName" placeholder="Nombre" value="{{ $firstName }}" required>
-            </div>
-            <div class="form-group mt-3">
-                <label for="lastName">Apellidos</label>
-                <input type="text" class="form-control" id="lastName" placeholder="Apellidos" value="{{ $lastName }}" required>
-            </div>
-            <div class="form-group mt-3">
-                <label for="phone">Teléfono</label>
-                <input type="text" class="form-control" id="phone" placeholder="Teléfono" value="{{ $phone }}" required>
-            </div>
-            <div class="form-group mt-3">
-                <label for="rut">RUT</label>
-                <input type="text" class="form-control" id="rut" placeholder="RUT" value="{{ $rut }}" required>
-            </div>
-            <div class="form-group mt-3">
-                <label for="email">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" placeholder="Correo electrónico" value="{{ $email }}" required>
-            </div>
-
-            <h3 class="mt-4">Métodos de Entrega</h3>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" name="delivery" value="retiro" id="officePickup" checked onclick="toggleDeliveryDetails('pickup')">
-                <label class="form-check-label" for="officePickup">Retiro en Tienda</label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" name="delivery" value="domicilio" id="homeDelivery" onclick="toggleDeliveryDetails('delivery')">
-                <label class="form-check-label" for="homeDelivery">Despacho a Domicilio</label>
-            </div>
-
-            <div id="deliveryDetails" class="mt-3" style="display: none;">
-                <div class="form-group">
-                    <label for="country">País / Región</label>
-                    <select class="form-control" id="country">
-                        <option>Chile</option>
-                    </select>
-                </div>
-                <div class="form-group mt-3">
-                    <label for="address">Dirección</label>
-                    <input type="text" class="form-control" id="address" placeholder="Dirección">
-                </div>
-                <div class="form-group mt-3">
-                    <label for="apartment">Casa, apartamento, etc. (opcional)</label>
-                    <input type="text" class="form-control" id="apartment" placeholder="Casa, apartamento, etc. (opcional)">
-                </div>
-                <div class="form-group mt-3">
-                    <label for="commune">Comuna</label>
-                    <input type="text" class="form-control" id="commune" placeholder="Comuna">
-                </div>
-                <div class="form-group mt-3">
-                    <label for="region">Región</label>
-                    <select class="form-control" id="region">
-                        <option>Los Ríos</option>
-                        <!-- Add other regions here -->
-                    </select>
-                </div>
-            </div>
-
-            <div id="pickupDetails" class="mt-3">
-                <div class="form-group">
-                    <label for="pickupStore">Sucursal de Retiro</label>
-                    <select class="form-control" id="pickupStore">
-                        <option>Sucursal Castro: Ignacio Serrano 531</option>
-                        <option>Sucursal Quellón: Av. la paz 423</option>
-                    </select>
-                </div>
-
-                <div class="form-check mt-3">
-                    <input type="radio" class="form-check-input" name="pickupOption" value="self" id="pickupSelf" onclick="togglePickupOption('self')" checked>
-                    <label class="form-check-label" for="pickupSelf">Retiro yo</label>
-                </div>
-                <div class="form-check mt-3">
-                    <input type="radio" class="form-check-input" name="pickupOption" value="other" id="pickupOther" onclick="togglePickupOption('other')">
-                    <label class="form-check-label" for="pickupOther">Retira otra persona</label>
-                </div>
-
-                <div id="pickupOtherDetails" class="mt-3" style="display: none;">
-                    <div class="form-group mt-3">
-                        <label for="receiverName">Nombre del Receptor</label>
-                        <input type="text" class="form-control" id="receiverName" placeholder="Nombre del Receptor">
+    <!-- Checkout Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Billing Address</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>First Name</label>
+                            <input class="form-control" type="text" placeholder="John">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Last Name</label>
+                            <input class="form-control" type="text" placeholder="Doe">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>E-mail</label>
+                            <input class="form-control" type="text" placeholder="example@email.com">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Mobile No</label>
+                            <input class="form-control" type="text" placeholder="+123 456 789">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Address Line 1</label>
+                            <input class="form-control" type="text" placeholder="123 Street">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Address Line 2</label>
+                            <input class="form-control" type="text" placeholder="123 Street">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Country</label>
+                            <select class="custom-select">
+                                <option selected>United States</option>
+                                <option>Afghanistan</option>
+                                <option>Albania</option>
+                                <option>Algeria</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>City</label>
+                            <input class="form-control" type="text" placeholder="New York">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>State</label>
+                            <input class="form-control" type="text" placeholder="New York">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>ZIP Code</label>
+                            <input class="form-control" type="text" placeholder="123">
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="newaccount">
+                                <label class="custom-control-label" for="newaccount">Create an account</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="shipto">
+                                <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Ship to different address</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="receiverRut">RUT del Receptor</label>
-                        <input type="text" class="form-control" id="receiverRut" placeholder="RUT del Receptor">
+                </div>
+                <div class="collapse mb-5" id="shipping-address">
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Shipping Address</span></h5>
+                    <div class="bg-light p-30">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>First Name</label>
+                                <input class="form-control" type="text" placeholder="John">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Last Name</label>
+                                <input class="form-control" type="text" placeholder="Doe">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>E-mail</label>
+                                <input class="form-control" type="text" placeholder="example@email.com">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Mobile No</label>
+                                <input class="form-control" type="text" placeholder="+123 456 789">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Address Line 1</label>
+                                <input class="form-control" type="text" placeholder="123 Street">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Address Line 2</label>
+                                <input class="form-control" type="text" placeholder="123 Street">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Country</label>
+                                <select class="custom-select">
+                                    <option selected>United States</option>
+                                    <option>Afghanistan</option>
+                                    <option>Albania</option>
+                                    <option>Algeria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>City</label>
+                                <input class="form-control" type="text" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>State</label>
+                                <input class="form-control" type="text" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>ZIP Code</label>
+                                <input class="form-control" type="text" placeholder="123">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="form-check mt-3">
-                <input type="checkbox" class="form-check-input" id="saveInfo">
-                <label class="form-check-label" for="saveInfo">Guardar mi información y consultar más rápidamente la próxima vez</label>
-            </div>
-        </div>
-        <div class="col-md-4 order-1 order-md-2">
-            <h3>Resumen del Pedido</h3>
-            <ul class="list-group mb-4" id="checkoutItems">
-                @if(!empty($cart))
-                    @foreach ($cart as $item)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <img src="{{ $item['imagen_producto'] ? asset('storage/imagenes_productos/' . $item['imagen_producto']) : asset('assets/img/gallery/default.jpg') }}" alt="{{ $item['nombre'] }}" class="img-thumbnail" style="width: 50px;" loading="lazy">
-                            <span>{{ $item['nombre'] }}</span>
-                            <span>${{ number_format($item['precio_venta_bruto'], 0, ',', '.') }}</span>
-                            <span class="badge bg-primary rounded-pill">{{ $item['quantity'] }}</span>
-                            <button class="btn btn-danger btn-sm" onclick="removeFromCart({{ $item['id'] }})">Eliminar</button>
-                        </li>
-                    @endforeach
-                @else
-                    <li class="list-group-item">Tu carrito está vacío.</li>
-                @endif
-            </ul>
-            <h4>Subtotal: $<span id="checkoutSubtotal">{{ number_format($total, 0, ',', '.') }}</span></h4>
-            <div class="card mt-3">
-                <div class="card-header" data-bs-toggle="collapse" data-bs-target="#discountDetails" aria-expanded="false" aria-controls="discountDetails">Descuentos Aplicados</div>
-                <div id="discountDetails" class="collapse">
-                    <ul class="list-group list-group-flush" id="discountInfo"></ul>
+            <div class="col-lg-4">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="border-bottom">
+                        <h6 class="mb-3">Products</h6>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 1</p>
+                            <p>$150</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 2</p>
+                            <p>$150</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p>Product Name 3</p>
+                            <p>$150</p>
+                        </div>
+                    </div>
+                    <div class="border-bottom pt-3 pb-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Subtotal</h6>
+                            <h6>$150</h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="font-weight-medium">Shipping</h6>
+                            <h6 class="font-weight-medium">$10</h6>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5>Total</h5>
+                            <h5>$160</h5>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <h4 id="checkoutDiscountCode"><span id="checkoutDiscount">0</span></h4>
-            <h4>Total: $<span id="checkoutTotal">{{ number_format($total, 0, ',', '.') }}</span></h4>
-        
-            @if($mascotaDeCumpleanos && !$birthdayDiscountUsed)
-            <div class="form-group mt-3" id="birthdayDiscountButton">
-                <button type="button" class="btn btn-warning btn-lg btn-block" onclick="applyBirthdayDiscount('{{ $mascotaDeCumpleanos->nombre }}')">Aplicar Descuento de Cumpleaños de {{ $mascotaDeCumpleanos->nombre }}</button>
-            </div>
-            @endif
-    
-            <div class="form-group mt-3">
-                <label for="discountCode">Código de Descuento</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="discountCode" placeholder="Introduce tu código de descuento" @if(session('discount_code') === 'BIRTHDAY') disabled @endif>
-                    <div class="input-group-append">
-                        <button type="button" class="btn btn-primary" onclick="applyDiscount()" @if(session('discount_code') === 'BIRTHDAY') disabled @endif>Aplicar</button>
+                <div class="mb-5">
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
+                    <div class="bg-light p-30">
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
+                                <label class="custom-control-label" for="paypal">Paypal</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
+                                <label class="custom-control-label" for="directcheck">Direct Check</label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
+                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button>
                     </div>
                 </div>
             </div>
-
-            <form id="paymentForm" action="{{ route('payment.create') }}" method="POST">
-    @csrf
-    <input type="hidden" name="total" id="paymentTotal" value="">
-    <input type="hidden" name="firstName" id="paymentFirstName" value="">
-    <input type="hidden" name="lastName" id="paymentLastName" value="">
-    <input type="hidden" name="email" id="paymentEmail" value="">
-    <input type="hidden" name="rut" id="paymentRut" value="">
-    <input type="hidden" name="phone" id="paymentPhone" value="">
-    <input type="hidden" name="deliveryMethod" id="paymentDeliveryMethod" value="">
-    <input type="hidden" name="deliveryDetails" id="paymentDeliveryDetails" value="">
-    <input type="hidden" name="receiverName" id="paymentReceiverName" value="">
-    <input type="hidden" name="receiverRut" id="paymentReceiverRut" value="">
-    <input type="hidden" name="pickupStore" id="paymentPickupStore" value="">
-    <button type="button" class="btn btn-primary btn-lg btn-block mt-4" onclick="proceedToCheckout()"><i class="fas fa-credit-card me-2"></i> Pagar</button>
-</form>
-
         </div>
     </div>
-    <div class="d-block d-md-none mt-3 btn-mobil">
-        <button type="button" class="btn btn-primary btn-lg btn-block btn-mobile mt-4" onclick="proceedToCheckout()"> <i class="fas fa-credit-card me-2"></i> Pagar</button>      
-    </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="alertModalLabel">Mensaje</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="alertModalBody">
-                <!-- Mensaje se llenará dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="alertModalButton">Aceptar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para inicio de sesión -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Por favor, inicia sesión para proceder con el pago.</p>
-                <a href="{{ route('login') }}" class="btn btn-primary">Iniciar Sesión</a>
-            </div>
-        </div>
-    </div>
-</div>
-<br>
+    <!-- Checkout End -->
 @include('layoutsprincipal.footer')
 
 <script>

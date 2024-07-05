@@ -31,6 +31,12 @@ class AppServiceProvider extends ServiceProvider
             $allowedRoles = ['admin', 'Vendedor', 'Bodeguero'];
             return in_array($user->role, $allowedRoles);
         });
+
+          // Compartir las categorías con todas las vistas
+          View::composer('*', function ($view) {
+            $categoriasPadre = Categoria::whereNull('categoria_padre_id')->with('subcategorias')->get();
+            $view->with('categoriasPadre', $categoriasPadre);
+        });
     }
 
     public function register()
