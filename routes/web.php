@@ -64,12 +64,9 @@ Route::post('/aplicar-codigo-promocional', [DescuentosController::class, 'aplica
 Route::post('/eliminar-codigo-promocional', [DescuentosController::class, 'eliminarCodigoPromocional'])->name('eliminar-codigo-promocional');
 
 // Ruta para acceder a la vista de productos
-Route::get('/productosVentas', function () {
-    return view('productosprincipal.productos');
-});
+
 Route::get('/productosVentas/{categoria}', [ProductosVentasController::class, 'showProductsByCategory'])->name('productosVentas.categoria');
 Route::get('/descuentos/buscar', [DescuentosInicioController::class, 'buscarProductos'])->name('descuentos.buscarProductos');
-
 
 // Ruta para acceder a la vista de productos con datos proporcionados por ProductosVentasController
 Route::get('/productosVentas', [ProductosVentasController::class, 'index'])->name('productosVentas.index');
@@ -80,11 +77,9 @@ Route::get('/servicios/{id}', [GestionSitioController::class, 'verServicio'])->n
 Route::get('/servicios', [GestionSitioController::class, 'mostrarServicios'])->name('servicios.index');
 
 //Ver los comentarios de los usuarios
+Route::post('/comentarios/{producto}', [ComentarioController::class, 'store'])->name('comentarios.store');
 Route::post('productos/{producto}/comentarios', [ComentarioController::class, 'store'])->name('comentarios.store');
 
-Route::get('/productodetalle', function () {
-    return view('productosprincipal.productodetalle');
-});
 Route::get('/contacto', [ContactoController::class, 'showForm'])->name('contacto.show');
 Route::post('/contacto', [ContactoController::class, 'sendContactForm'])->name('contacto.send');
 // Rutas que requieren autenticación
@@ -176,12 +171,11 @@ Route::get('/proveedores', [ProveedorController::class, 'index'])->name('proveed
         Route::post('/gestion-sitio/agregar', [GestionSitioController::class, 'agregarContenido'])->name('gestionSitio.agregarContenido');
         Route::delete('/eliminar-contenido/{id}', [GestionSitioController::class, 'eliminarContenido'])->name('gestionSitio.eliminarContenido');
         Route::post('/update-header/{id}', [GestionSitioController::class, 'updateHeader'])->name('gestionSitio.updateHeader');
-        Route::post('/gestionSitio/updateHeader/{id}', [GestionSitioController::class, 'updateHeader'])->name('gestionSitio.updateHeader');
-Route::delete('/gestionSitio/eliminarHeader/{id}', [GestionSitioController::class, 'eliminarHeader'])->name('gestionSitio.eliminarHeader');
+        Route::delete('/gestionSitio/eliminarHeader/{id}', [GestionSitioController::class, 'eliminarHeader'])->name('gestionSitio.eliminarHeader');
 
-Route::get('/api/search-products', [GestionSitioController::class, 'searchProducts']);
+        Route::get('/api/search-products', [GestionSitioController::class, 'searchProducts']);
 
-Route::post('/gestion/actualizar-productos-destacados', [GestionSitioController::class, 'actualizarProductosDestacados'])->name('gestion.actualizarProductosDestacados');
+        Route::post('/gestion/actualizar-productos-destacados', [GestionSitioController::class, 'actualizarProductosDestacados'])->name('gestion.actualizarProductosDestacados');
 
         Route::get('/gestion/productos-destacados', [GestionSitioController::class, 'index'])->name('gestion.productosDestacados');
         Route::post('/gestion/productos-destacados/{id}', [GestionSitioController::class, 'actualizarProductoDestacado'])->name('gestion.actualizarProductoDestacado');

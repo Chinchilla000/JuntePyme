@@ -1,83 +1,89 @@
-<!-- ============================================-->
-<!-- <section> begin ============================-->
-    <section class="py-0 pt-7 bg-1000">
-        <div class="container">
-            <div class="row justify-content-lg-between">
-                <h5 class="lh-lg fw-bold text-white">NUESTRAS SUCURSALES</h5>
-                <div class="col-6 col-md-4 col-lg-auto mb-3">
-                    <ul class="list-unstyled mb-md-4 mb-lg-0">
-                        <li class="lh-lg"><a class="text-200 text-decoration-none"
-                                href="https://maps.app.goo.gl/spuWaxAfmJv5Reac6" target="_blank"><i
-                                    class="fas fa-map-marker-alt text-warning mx-2"></i>Sucursal Castro: Ignacio
-                                Serrano 531</a></li>
-                        <li class="lh-lg"><a class="text-200 text-decoration-none"
-                                href="https://maps.app.goo.gl/iNLiH7Ce9SLmPFxZ7" target="_blank"><i
-                                    class="fas fa-map-marker-alt text-warning mx-2"></i>Sucursal Quellón: Av. la
-                                paz 423</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="text-900" />
+<!-- Footer Start -->
+<div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+    <div class="row px-xl-5 pt-5">
+        <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+            <h5 class="text-secondary text-uppercase mb-4">Contacta con Nosotros</h5>
+            <p class="mb-4">Visítanos en nuestra tienda o contáctanos a través de los siguientes medios. Estamos para servirte.</p>
+            <p class="mb-2"><i class="fa fa-map-marker-alt text-danger mr-3"></i>Esquina freire poniente 415, Dalcahue, Chiloé</p>
+            <p class="mb-2"><i class="fa fa-envelope text-danger mr-3"></i>info@ferreteriaelmartillo.cl</p>
+            <p class="mb-0"><i class="fa fa-phone-alt text-danger mr-3"></i>+56 9 8869 6580</p>
+        </div>
+        <div class="col-lg-8 col-md-12">
             <div class="row">
-                <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-3">
-                    <h5 class="lh-lg fw-bold text-white">CONTACTO</h5>
-                    <ul class="list-unstyled mb-md-4 mb-lg-0">
-                        <li class="lh-lg">
-                            <a class="text-200 text-decoration-none" href="mailto:fullmascotaschiloe@gmail.com"
-                                target="_blank">
-                                <i class="fas fa-envelope text-warning mx-2"></i>fullmascotaschiloe@gmail.com
-                            </a>
-                        </li>
-                        <li class="lh-lg">
-                            <a class="text-200 text-decoration-none"
-                                href="https://wa.me/56971772430?text=Hola!%20Estoy%20interesado%20en%20saber%20más%20sobre%20los%20productos."
-                                target="_blank">
-                                <i class="fab fa-whatsapp text-warning mx-2"></i>+56 9 7177 2430
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-3">
-                    <h5 class="lh-lg fw-bold text-white">SIGUENOS</h5>
-                    <div class="text-start my-3">
-                        <a class="text-200 text-decoration-none" href="https://www.instagram.com/fullbigoteschiloe/"
-                            target="_blank">
-                            <i class="fab fa-instagram text-warning mx-2"></i>fullbigoteschiloe
-                        </a>
+                <div class="col-md-4 mb-5">
+                    <h5 class="text-secondary text-uppercase mb-4">Tienda Rápida</h5>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Inicio</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Nuestra Tienda</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Detalle del Producto</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Carrito de Compras</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Checkout</a>
+                        <a class="text-secondary" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Contáctanos</a>
                     </div>
-    
                 </div>
-                <div class="col-12 col-md-8 col-lg-6 col-xxl-4">
-                    <h5 class="lh-lg fw-bold text-500">RECIBE OFERTAS EXCLUSIVAS</h5>
-                    <div class="row input-group-icon mb-5">
-                        <div class="col-auto">
-                            <i class="fas fa-envelope input-box-icon text-500 ms-3"></i>
-                            <input class="form-control input-box bg-800 border-0" type="email"
-                                placeholder="Ingresa tu email" aria-label="email" />
+                <div class="col-md-4 mb-5">
+                    <h5 class="text-secondary text-uppercase mb-4">Mi Cuenta</h5>
+                    <div class="d-flex flex-column justify-content-start">
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Inicio</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Nuestra Tienda</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Detalle del Producto</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Carrito de Compras</a>
+                        <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Checkout</a>
+                        <a class="text-secondary" href="#"><i class="fa fa-angle-right text-danger mr-2"></i>Contáctanos</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <h5 class="text-secondary text-uppercase mb-4">Newsletter</h5>
+                    <p>Suscríbete para recibir las últimas novedades y ofertas.</p>
+                    <form action="">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Tu Email">
+                            <div class="input-group-append">
+                                <button class="btn btn-danger">Suscribirse</button>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <button class="btn btn-primary" type="submit">Suscribirse</button>
-                        </div>
+                    </form>
+                    <h6 class="text-secondary text-uppercase mt-4 mb-3">Síguenos</h6>
+                    <div class="d-flex">
+                        <a class="btn btn-danger btn-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-danger btn-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-danger btn-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a class="btn btn-danger btn-square" href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
-            <hr class="border border-800" />
-            <div class="row flex-center pb-3">
-                <div class="col-md-6 order-0">
-                    <p class="text-200 text-center text-md-start">Todos los derechos reservados &copy; Full
-                        Bigotes, 2024</p>
-                </div>
-                <div class="col-md-6 order-1">
-                    <p class="text-200 text-center text-md-end"> Creado&nbsp;<i class="bi bi-suit-heart-fill"
-                            style="color: #FFB30E;"></i>&nbsp;por&nbsp;<a class="text-200 fw-bold"
-                            href="https://www.codecrafters.cl" target="_blank">CodeCrafters</a>
-                    </p>
-                </div>
-            </div>
-        </div><!-- end of .container-->
-    </section>
-    <!-- <section> close ============================-->
-    <!-- ============================================-->
+        </div>
+    </div>
+    <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+        <div class="col-md-6 px-xl-0">
+            <p class="mb-md-0 text-center text-md-left text-secondary">
+                <img src="assets/img/logoelmartillo.png" alt="Ferretería El Martillo" style="width: 30px; vertical-align: middle; margin-right: 10px;">
+                &copy; <a class="text-danger" href="#">Ferretería El Martillo</a>. Todos los derechos reservados. Diseñado por
+                <a class="text-danger" href="https://codecrafters.cl">CodeCrafters</a>.
+            </p>
+        </div>
+
+    </div>
+</div>
+<!-- Footer End -->
+
+<!-- Back to Top -->
+<a href="#" class="btn btn-danger back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+
     
     
     </main>

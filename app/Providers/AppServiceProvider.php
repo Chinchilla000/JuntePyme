@@ -17,9 +17,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Compartir las categorías con todas las vistas
-        $categorias = Categoria::all();
-        View::share('categorias', $categorias);
+         // Compartir las categorías con todas las vistas que incluyen la navbar
+        View::composer(['layoutsprincipal.header', 'welcome','layoutsprincipal.nav'], function ($view) {
+            $categoriasPadre = Categoria::with('subcategorias')->whereNull('categoria_padre_id')->get();
+            $view->with('categoriasPadre', $categoriasPadre);
+        });
+
 
         // Compartir los productos con todas las vistas
         $productos = Producto::all();

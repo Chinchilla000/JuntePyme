@@ -1,154 +1,259 @@
 @include('layoutsprincipal.header')
-@include('layoutsprincipal.nav')
-<script>
-    window.productos = @json([$producto]);
-</script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-<br><br>
-<section class="py-4 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                @if ($producto->imagen_producto)
-                    <img src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" class="img-fluid" alt="{{ $producto->nombre }}">
-                @else
-                    <img src="{{ asset('assets/img/gallery/default.jpg') }}" class="img-fluid" alt="Default Image">
-                @endif
-            </div>
-            <div class="col-md-6">
-                <h2 class="fw-bold">{{ $producto->nombre }}</h2>
-                <p class="text-muted">{{ $producto->descripcion }}</p>
-            
-                @if($producto->descuento)
-                    @if($producto->descuento->monto)
-                        <h3 class="text-danger">
-                            <del class="precio-tachado">${{ number_format($producto->precio_venta_bruto, 0) }}</del>
-                            ${{ number_format($producto->precio_venta_bruto - $producto->descuento->monto, 0) }}
-                        </h3>
-                        <span class="badge bg-success">Descuento: ${{ number_format($producto->descuento->monto, 0) }}</span>
-                    @elseif($producto->descuento->porcentaje)
-                        <h3 class="text-danger">
-                            <del class="precio-tachado">${{ number_format($producto->precio_venta_bruto, 0) }}</del>
-                            ${{ number_format($producto->precio_venta_bruto * (1 - $producto->descuento->porcentaje / 100), 0) }}
-                        </h3>
-                        <span class="badge bg-success">Descuento: {{ $producto->descuento->porcentaje }}%</span>
-                    @endif
-                @else
-                    <h3 class="text-success">${{ number_format($producto->precio_venta_bruto, 0) }}</h3>
-                @endif
-            
-                <hr>
-                <h5>Especificaciones:</h5>
-                <ul>
-                    @if ($especificaciones->isEmpty())
-                        <li>No hay especificaciones para este producto.</li>
+<!-- Shop Detail Start -->
+<div class="container-fluid pb-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-5 mb-30">
+            <div id="product-carousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner bg-light">
+                    @if($producto->imagenes && count($producto->imagenes) > 0)
+                    @foreach($producto->imagenes as $imagen)
+                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                            <img class="w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $imagen->url) }}" alt="{{ $producto->nombre }}">
+                        </div>
+                    @endforeach
                     @else
-                        @foreach ($especificaciones as $especificacion)
-                            <li>{{ $especificacion->clave }}: {{ $especificacion->valor }}</li>
-                        @endforeach
+                    <div class="carousel-item active">
+                        <img class="w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" alt="{{ $producto->nombre }}">
+                    </div>
                     @endif
-                </ul>
-            
-                <!-- Botón para añadir al carrito -->
-                <button class="btn btn-primary btn-sm mt-2 w-100 w-sm-auto" onclick="openQuantityModal({{ $producto->id }})">
-                    <i class="fas fa-cart-plus"></i> Añadir al carrito
-                </button>
+                </div>
+                <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
+                    <i class="fa fa-2x fa-angle-left text-dark"></i>
+                </a>
+                <a class="carousel-control-next" href="#product-carousel" data-slide="next">
+                    <i class="fa fa-2x fa-angle-right text-dark"></i>
+                </a>
             </div>
-            <style>
-                .precio-tachado {
-                    color: grey;
-                }
-            </style>
-            
         </div>
-        <!-- Sección de detalles adicionales del producto -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <h4 class="text-center mb-4">Detalles del Producto</h4>
-                @if ($detalles->isEmpty())
-                    <p class="text-center">Aún no se han agregado datos.</p>
-                @else
-                    <div class="accordion" id="productDetailsAccordion">
-                        @foreach ($detalles as $index => $detalle)
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="heading{{ $detalle->id }}">
-                                    <button class="accordion-button {{ $index == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $detalle->id }}" aria-expanded="{{ $index == 0 ? 'true' : 'false' }}" aria-controls="collapse{{ $detalle->id }}">
-                                        {{ $detalle->titulo }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ $detalle->id }}" class="accordion-collapse collapse {{ $index == 0 ? 'show' : '' }}" aria-labelledby="heading{{ $detalle->id }}" data-bs-parent="#productDetailsAccordion">
-                                    <div class="accordion-body">
-                                        {!! $detalle->contenido !!}
+
+        <div class="col-lg-7 h-auto mb-30">
+            <div class="h-100 bg-light p-30">
+                <h3>{{ $producto->nombre }}</h3>
+                <div class="d-flex mb-3">
+                    <div class="text-danger mr-2">
+                        @for ($i = 0; $i < 5; $i++)
+                            @if ($i < $producto->rating)
+                                <small class="fas fa-star"></small>
+                            @elseif ($i < $producto->rating + 0.5)
+                                <small class="fas fa-star-half-alt"></small>
+                            @else
+                                <small class="far fa-star"></small>
+                            @endif
+                        @endfor
+                    </div>
+                    <small class="pt-1">({{ $comentarios->count() }} Opiniones)</small>
+                </div>
+        
+                <div class="d-flex align-items-center mb-4">
+                    @if ($producto->precio_final < $producto->precio_venta_bruto)
+                        <h3 class="font-weight-semi-bold mb-4 text-danger">
+                            ${{ number_format($producto->precio_final, 0) }}
+                        </h3>
+                        <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
+                    @else
+                        <h3 class="font-weight-semi-bold mb-4">
+                            ${{ number_format($producto->precio_venta_bruto, 0) }}
+                        </h3>
+                    @endif
+                </div>
+                <p class="mb-4">{{ $producto->descripcion }}</p>
+        
+                <div class="d-flex align-items-center mb-4 pt-2">
+                    <div class="input-group quantity mr-3" style="width: 130px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-minus">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <input type="text" class="form-control bg-secondary border-0 text-center" value="1">
+                        <div class="input-group-btn">
+                            <button class="btn btn-danger btn-plus">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger px-3"><i class="fa fa-shopping-cart mr-1"></i> Añadir al Carrito</button>
+                </div>
+                <div class="d-flex pt-2">
+                    <strong class="text-dark mr-2">Compartir en:</strong>
+                    <div class="d-inline-flex">
+                        <a class="text-dark px-2" href="">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a class="text-dark px-2" href="">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a class="text-dark px-2" href="">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a class="text-dark px-2" href="">
+                            <i class="fab fa-pinterest"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="row px-xl-5">
+        <div class="col">
+            <div class="bg-light p-30">
+                <div class="nav nav-tabs mb-4">
+                    <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-pane-1">Descripción</a>
+                    <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Información</a>
+                    <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Opiniones ({{ $comentarios->count() }})</a>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-pane-1">
+                        <h4 class="mb-3">Descripción del Producto</h4>
+                        <p>{{ $producto->descripcion }}</p>
+                    </div>
+                    <div class="tab-pane fade" id="tab-pane-2">
+                        <h4 class="mb-3">Información Adicional</h4>
+                        @foreach($producto->detalles as $detalle)
+                        <p><strong>{{ $detalle->titulo }}:</strong> {{ $detalle->contenido }}</p>
+                        @endforeach
+                    </div>
+                    <div class="tab-pane fade" id="tab-pane-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="mb-4">Deja tu opinión</h4>
+                                <small>Tu dirección de correo electrónico no será publicada. Los campos obligatorios están marcados con *</small>
+                                <div class="d-flex my-3">
+                                    <p class="mb-0 mr-2">Tu Calificación * :</p>
+                                    <div class="text-danger">
+                                        @for ($i = 0; $i < 5; $i++)
+                                            <i class="far fa-star"></i>
+                                        @endfor
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-        <!-- Sección de comentarios y valoraciones -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <h4 class="text-center mb-4">Comentarios de Clientes</h4>
-                <div class="row">
-                    @forelse($comentarios as $comentario)
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title text-primary">{{ $comentario->nombre }}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ \Carbon\Carbon::parse($comentario->fecha)->locale('es')->diffForHumans() }}</h6>
-                                    <p class="card-text">{{ $comentario->descripcion }}</p>
-                                </div>
+                                <form action="{{ route('comentarios.store', $producto->id) }}" method="POST">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="message">Tu Opinión *</label>
+                                        <textarea id="message" name="descripcion" cols="30" rows="5" class="form-control" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="name">Tu Nombre *</label>
+                                        <input type="text" class="form-control" id="name" name="nombre" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Tu Email *</label>
+                                        <input type="email" class="form-control" id="email" name="correo" required>
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <input type="submit" value="Enviar Opinión" class="btn btn-danger px-3">
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    @empty
-                        <p class="text-center">No hay comentarios para este producto.</p>
-                    @endforelse
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h4 class="mb-4">Opiniones de otros usuarios</h4>
+                                @foreach($comentarios as $comentario)
+                                <div class="media mb-4">
+                                    <div class="media-body">
+                                        <h5>{{ $comentario->nombre }} <small><i>Publicado el {{ $comentario->fecha->format('d M Y') }}</i></small></h5>
+                                        <p>{{ $comentario->descripcion }}</p>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- Enlaces de paginación -->
-                <div class="d-flex justify-content-center">
-                    {{ $comentarios->links() }}
-                </div>
-            </div>
-        </div>
-        <!-- Formulario para nuevo comentario -->
-        <h4 class="text-center mb-4">Escribe un Comentario</h4>
-        <div class="card">
-            <div class="card-body">
-                <form action="{{ route('comentarios.store', $producto->id) }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="correo" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="correo" name="correo" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Comentario</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar Comentario</button>
-                </form>
             </div>
         </div>
     </div>
-</section>
+</div>
+<!-- Shop Detail End -->
+
+<!-- Productos Relacionados -->
+<div class="container-fluid py-5">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">También te puede interesar</span></h2>
+    <div class="row px-xl-5">
+        <div class="col">
+            <div class="row">
+                @foreach($productosRelacionados as $relacionado)
+                <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                    <div class="product-item bg-light mb-4">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" src="{{ $relacionado->imagen_producto ? asset('storage/imagenes_productos/' . $relacionado->imagen_producto) : asset('assets/img/gallery/default.jpg') }}" alt="{{ $relacionado->nombre }}">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" href="{{ url('/productodetalle', $relacionado->id) }}"><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href="{{ url('/productodetalle', $relacionado->id) }}"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $relacionado->id) }}">{{ $relacionado->nombre }}</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5>${{ number_format($relacionado->precio_final, 0) }}</h5>
+                                <h6 class="text-muted ml-2"><del>${{ number_format($relacionado->precio_venta_bruto, 0) }}</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                @for ($i = 0; $i < 5; $i++)
+                                    @if ($i < ($relacionado->rating ?? 0))
+                                        <small class="fa fa-star text-primary mr-1"></small>
+                                    @elseif ($i < ($relacionado->rating ?? 0) + 0.5)
+                                        <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                                    @else
+                                        <small class="far fa-star text-primary mr-1"></small>
+                                    @endif
+                                @endfor
+                                <small>({{ $relacionado->reviews_count ?? 0 }})</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Productos Relacionados -->
+
+
 <script>
-    function openQuantityModal(productoId) {
-        console.log("ID solicitado:", productoId);
-        // Aquí puedes agregar la lógica para abrir el modal de cantidad y añadir al carrito
-        console.log(`Abrir modal para el producto con ID ${productoId}`);
-        // Suponemos que tienes una función para mostrar el modal
-        const modalElement = document.getElementById('quantityModal'); // Asegúrate de que el ID corresponde a tu modal
-        if (modalElement) {
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-        }
-    }
-    </script>
-    
+    document.addEventListener('DOMContentLoaded', function() {
+        @if(session('success'))
+        // Mostrar modal
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'), {});
+        successModal.show();
+        @endif
+    });
+
+    document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+        location.reload();
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', function () {
+        var successModal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
+        successModal.hide();
+        location.reload();
+    });
+</script>
+
+<!-- Modal de éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title text-white" id="successModalLabel">Comentario registrado</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fa fa-check-circle fa-3x text-success mb-3"></i>
+                <p class="mb-0">Tu opinión ha sido registrada exitosamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeModalBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include('layoutsprincipal.footer')
