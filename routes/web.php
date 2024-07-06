@@ -44,16 +44,14 @@ Route::get('/order/failed/{orderId}', [PaymentController::class, 'orderFailed'])
 Route::get('/order/pending/{orderId}', [PaymentController::class, 'orderPending'])->name('order.pending');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/recalculate', [CheckoutController::class, 'recalculate'])->name('checkout.recalculate');
-Route::post('/checkout/applyDiscount', [CheckoutController::class, 'applyDiscount'])->name('checkout.applyDiscount');
-Route::post('/checkout/applyBirthdayDiscount', [CheckoutController::class, 'applyBirthdayDiscount'])->name('checkout.applyBirthdayDiscount');
-Route::post('/checkout/create', [PaymentController::class, 'createTransaction'])->name('payment.create');
+Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
 
-Route::get('/cargar-carrito', [CarritoController::class, 'cargarCarrito'])->name('cargar-carrito');
-Route::post('/guardar-carrito', [CarritoController::class, 'guardarCarrito']);
-Route::get('/checkout', [CarritoController::class, 'index']);
-Route::post('/carrito/aplicar-descuento', [CarritoController::class, 'aplicarDescuento'])->name('carrito.aplicar-descuento');
-
+Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
+Route::post('/carrito/agregar', [CarritoController::class, 'agregarAlCarrito'])->name('carrito.agregar');
+Route::post('/carrito/agregar-ajax', [CarritoController::class, 'agregarAlCarritoAjax'])->name('carrito.agregar-ajax');
+Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+Route::post('/carrito/actualizar-cantidad', [CarritoController::class, 'actualizarCantidad'])->name('carrito.actualizar-cantidad');
+Route::post('/carrito/eliminar-producto', [CarritoController::class, 'eliminarProducto'])->name('carrito.eliminar-producto');
 
 Route::get('/descuentosProductos', [ProductosVentasController::class, 'index'])->name('descuentosProductos');
 Route::get('/buscar-productos-por-categoria/{categoriaId}', [ProductosVentasController::class, 'buscarProductosPorCategoria'])->name('buscar.productos.categoria');

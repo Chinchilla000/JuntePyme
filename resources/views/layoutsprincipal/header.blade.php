@@ -221,7 +221,7 @@
         </div>
         <div class="col-lg-9">
             <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-                <a href="" class="text-decoration-none d-block d-lg-none">
+                <a href="{{ route('welcome') }}" class="text-decoration-none d-block d-lg-none">
                     <img src="{{ asset('img/logoelmartillo.png') }}" alt="Ferretería El Martillo" style="max-width: 80px;">
                     <span class="h4 text-white ml-2">Ferretería El Martillo</span>
                 </a>
@@ -247,14 +247,33 @@
                             <i class="fas fa-heart text-danger"></i>
                             <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
                         </a>
-                        <a href="" class="btn px-0 ml-3">
-                            <i class="fas fa-shopping-cart text-danger"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
-                        </a>
+                        <div class="btn-group">
+                            <a href="#" class="btn px-0 ml-3 dropdown-toggle" data-toggle="dropdown">
+                                <i class="fas fa-shopping-cart text-danger"></i>
+                                <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">{{ $carritoProductos->count() }}</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-item">
+                                    @foreach($carritoProductos as $carritoProducto)
+                                        <div class="d-flex align-items-center mb-2">
+                                            <img src="{{ asset('storage/imagenes_productos/' . $carritoProducto->producto->imagen_producto) }}" alt="{{ $carritoProducto->producto->nombre }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div class="ml-2">
+                                                <h6 class="font-weight-bold mb-0">{{ $carritoProducto->producto->nombre }}</h6>
+                                                <small class="text-muted">Cantidad: {{ $carritoProducto->cantidad }}</small>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    <div class="text-center mt-3">
+                                        <a href="{{ route('carrito.index') }}" class="btn btn-sm btn-danger">Ver Carrito</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
         </div>
+        
     </div>
 </div>
 <!-- Navbar End -->
@@ -300,6 +319,22 @@
                     @endif
                 @endforeach
             </ul>
+            <!-- Carrito de compras -->
+            <div class="offcanvas-menu-body mt-4">
+                <h5>Carrito de Compras</h5>
+                <ul class="navbar-nav">
+                    @foreach($carritoProductos as $item)
+                        <li class="nav-item d-flex align-items-center mb-2">
+                            <img src="{{ asset('storage/imagenes_productos/' . $item->producto->imagen_producto) }}" alt="{{ $item->producto->nombre }}" class="cart-item-img">
+                            <div class="d-flex flex-column ml-2">
+                                <span>{{ $item->producto->nombre }}</span>
+                                <small>Cantidad: {{ $item->cantidad }}</small>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+                <a href="{{ url('cart') }}" class="btn btn-primary btn-block mt-4">Ver Carrito</a>
+            </div>
             <div class="sidebar-extra-info mt-4">
                 <h6 class="text-uppercase">Dirección</h6>
                 <p><i class="fa fa-map-marker-alt text-danger"></i> Esquina freire poniente 415, Dalcahue, Chiloé</p>
@@ -316,8 +351,14 @@
         </div>
     </div>
 </div>
+<!-- Mobile Sidebar Menu End -->
 
         <style>
+            .scrollable-menu {
+                max-height: calc(100vh - 100px); /* Ajusta la altura máxima */
+                overflow-y: auto;
+                padding-bottom: 10px;
+            }
             .offcanvas-menu {
                 position: fixed;
                 top: 0;

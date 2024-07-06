@@ -60,23 +60,31 @@
                     @endif
                 </div>
                 <p class="mb-4">{{ $producto->descripcion }}</p>
+
+                <!-- Mostrar cantidad disponible -->
+                <p class="mb-4">Cantidad disponible: {{ $producto->cantidad_disponible }}</p>
         
-                <div class="d-flex align-items-center mb-4 pt-2">
-                    <div class="input-group quantity mr-3" style="width: 130px;">
-                        <div class="input-group-btn">
-                            <button class="btn btn-danger btn-minus">
-                                <i class="fa fa-minus"></i>
-                            </button>
+                <form action="{{ route('carrito.agregar') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="producto_id" value="{{ $producto->id }}">
+                    <div class="d-flex align-items-center mb-4 pt-2">
+                        <div class="input-group quantity mr-3" style="width: 130px;">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-danger btn-minus">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <input type="text" name="cantidad" class="form-control bg-secondary border-0 text-center" value="1">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-danger btn-plus">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
-                        <input type="text" class="form-control bg-secondary border-0 text-center" value="1">
-                        <div class="input-group-btn">
-                            <button class="btn btn-danger btn-plus">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-danger px-3"><i class="fa fa-shopping-cart mr-1"></i> Añadir al Carrito</button>
                     </div>
-                    <button class="btn btn-danger px-3"><i class="fa fa-shopping-cart mr-1"></i> Añadir al Carrito</button>
-                </div>
+                </form>
+
                 <div class="d-flex pt-2">
                     <strong class="text-dark mr-2">Compartir en:</strong>
                     <div class="d-inline-flex">
@@ -215,45 +223,102 @@
         </div>
     </div>
 </div>
-<!-- Productos Relacionados -->
+<!-- Productos Relacionados End -->
 
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @if(session('success'))
-        // Mostrar modal
-        var successModal = new bootstrap.Modal(document.getElementById('successModal'), {});
-        successModal.show();
-        @endif
-    });
-
-    document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
-        location.reload();
-    });
-
-    document.getElementById('closeModalBtn').addEventListener('click', function () {
-        var successModal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
-        successModal.hide();
-        location.reload();
-    });
-</script>
-
-<!-- Modal de éxito -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+<!-- Modal de éxito para comentario -->
+<div class="modal fade" id="successComentarioModal" tabindex="-1" aria-labelledby="successComentarioModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title text-white" id="successModalLabel">Comentario registrado</h5>
+                <h5 class="modal-title text-white" id="successComentarioModalLabel">Comentario registrado</h5>
             </div>
             <div class="modal-body text-center">
                 <i class="fa fa-check-circle fa-3x text-success mb-3"></i>
                 <p class="mb-0">Tu opinión ha sido registrada exitosamente.</p>
             </div>
             <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeModalBtn">Cerrar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeComentarioModalBtn">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal de éxito para carrito -->
+<div class="modal fade" id="successCarritoModal" tabindex="-1" aria-labelledby="successCarritoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title text-white" id="successCarritoModalLabel">Producto agregado al carrito</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fa fa-check-circle fa-3x text-success mb-3"></i>
+                <p class="mb-0">Producto agregado al carrito exitosamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeCarritoModalBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar modal de comentario si hay un mensaje de éxito de comentario en la sesión
+        @if(session('success_comentario'))
+        var successComentarioModal = new bootstrap.Modal(document.getElementById('successComentarioModal'), {});
+        successComentarioModal.show();
+        @endif
+
+        // Mostrar modal de carrito si hay un mensaje de éxito de carrito en la sesión
+        @if(session('success'))
+        var successCarritoModal = new bootstrap.Modal(document.getElementById('successCarritoModal'), {});
+        successCarritoModal.show();
+        @endif
+
+        // Funcionalidad de los botones + y -
+        document.querySelectorAll('.btn-minus').forEach(button => {
+            button.addEventListener('click', function() {
+                var input = this.closest('.quantity').querySelector('input');
+                var value = parseInt(input.value);
+                if (value > 1) {
+                    input.value = value - 1;
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-plus').forEach(button => {
+            button.addEventListener('click', function() {
+                var input = this.closest('.quantity').querySelector('input');
+                var value = parseInt(input.value);
+                var max = {{ $producto->cantidad_disponible }};
+                if (value < max) {
+                    input.value = value + 1;
+                }
+            });
+        });
+    });
+
+    // Recargar la página cuando se cierra el modal de comentario
+    document.getElementById('successComentarioModal').addEventListener('hidden.bs.modal', function () {
+        location.reload();
+    });
+
+    document.getElementById('closeComentarioModalBtn').addEventListener('click', function () {
+        var successComentarioModal = bootstrap.Modal.getInstance(document.getElementById('successComentarioModal'));
+        successComentarioModal.hide();
+        location.reload();
+    });
+
+    // Recargar la página cuando se cierra el modal de carrito
+    document.getElementById('successCarritoModal').addEventListener('hidden.bs.modal', function () {
+        location.reload();
+    });
+
+    document.getElementById('closeCarritoModalBtn').addEventListener('click', function () {
+        var successCarritoModal = bootstrap.Modal.getInstance(document.getElementById('successCarritoModal'));
+        successCarritoModal.hide();
+        location.reload();
+    });
+</script>
 
 @include('layoutsprincipal.footer')

@@ -57,7 +57,7 @@
     <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
         <div class="col-md-6 px-xl-0">
             <p class="mb-md-0 text-center text-md-left text-secondary">
-                <img src="assets/img/logoelmartillo.png" alt="Ferretería El Martillo" style="width: 30px; vertical-align: middle; margin-right: 10px;">
+                <img src="{{ asset('img/logoelmartillo.png') }}" alt="Ferretería El Martillo" style="width: 30px; vertical-align: middle; margin-right: 10px;">
                 &copy; <a class="text-danger" href="#">Ferretería El Martillo</a>. Todos los derechos reservados. Diseñado por
                 <a class="text-danger" href="https://codecrafters.cl">CodeCrafters</a>.
             </p>
