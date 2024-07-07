@@ -38,22 +38,23 @@ Route::get('/send-mail', function () {
 });
 
 Route::post('/payment/notification', [PaymentController::class, 'handlePaymentNotification'])->name('payment.notification');
-Route::get('/payment/result', [PaymentController::class, 'handlePaymentResult'])->name('payment.result');
+// Ruta para manejar el resultado del pago
+Route::get('/payment/result/{order_id}', [CheckoutController::class, 'paymentResult'])->name('payment.result');
+
 Route::get('/order/confirmation/{orderId}', [PaymentController::class, 'orderConfirmation'])->name('order.confirmation');
 Route::get('/order/failed/{orderId}', [PaymentController::class, 'orderFailed'])->name('order.failed');
 Route::get('/order/pending/{orderId}', [PaymentController::class, 'orderPending'])->name('order.pending');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/recalculate', [CheckoutController::class, 'recalculate'])->name('checkout.recalculate');
-Route::post('/checkout/applyDiscount', [CheckoutController::class, 'applyDiscount'])->name('checkout.applyDiscount');
-Route::post('/checkout/applyBirthdayDiscount', [CheckoutController::class, 'applyBirthdayDiscount'])->name('checkout.applyBirthdayDiscount');
-Route::post('/checkout/create', [PaymentController::class, 'createTransaction'])->name('payment.create');
+Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+Route::get('/ordenes/{id}', [OrdenController::class, 'show'])->name('ordenes.show');
 
-Route::get('/cargar-carrito', [CarritoController::class, 'cargarCarrito'])->name('cargar-carrito');
-Route::post('/guardar-carrito', [CarritoController::class, 'guardarCarrito']);
-Route::get('/checkout', [CarritoController::class, 'index']);
-Route::post('/carrito/aplicar-descuento', [CarritoController::class, 'aplicarDescuento'])->name('carrito.aplicar-descuento');
-
+Route::get('/carrito', [CarritoController::class, 'index'])->name('carrito.index');
+Route::post('/carrito/agregar', [CarritoController::class, 'agregarAlCarrito'])->name('carrito.agregar');
+Route::post('/carrito/agregar-ajax', [CarritoController::class, 'agregarAlCarritoAjax'])->name('carrito.agregar-ajax');
+Route::delete('/carrito/eliminar/{id}', [CarritoController::class, 'eliminar'])->name('carrito.eliminar');
+Route::post('/carrito/actualizar-cantidad', [CarritoController::class, 'actualizarCantidad'])->name('carrito.actualizar-cantidad');
+Route::post('/carrito/eliminar-producto', [CarritoController::class, 'eliminarProducto'])->name('carrito.eliminar-producto');
 
 Route::get('/descuentosProductos', [ProductosVentasController::class, 'index'])->name('descuentosProductos');
 Route::get('/buscar-productos-por-categoria/{categoriaId}', [ProductosVentasController::class, 'buscarProductosPorCategoria'])->name('buscar.productos.categoria');
@@ -64,12 +65,9 @@ Route::post('/aplicar-codigo-promocional', [DescuentosController::class, 'aplica
 Route::post('/eliminar-codigo-promocional', [DescuentosController::class, 'eliminarCodigoPromocional'])->name('eliminar-codigo-promocional');
 
 // Ruta para acceder a la vista de productos
-Route::get('/productosVentas', function () {
-    return view('productosprincipal.productos');
-});
+
 Route::get('/productosVentas/{categoria}', [ProductosVentasController::class, 'showProductsByCategory'])->name('productosVentas.categoria');
 Route::get('/descuentos/buscar', [DescuentosInicioController::class, 'buscarProductos'])->name('descuentos.buscarProductos');
-
 
 // Ruta para acceder a la vista de productos con datos proporcionados por ProductosVentasController
 Route::get('/productosVentas', [ProductosVentasController::class, 'index'])->name('productosVentas.index');
@@ -83,11 +81,9 @@ Route::get('/servicios/{id}', [GestionSitioController::class, 'verServicio'])->n
 Route::get('/servicios', [GestionSitioController::class, 'mostrarServicios'])->name('servicios.index');
 
 //Ver los comentarios de los usuarios
+Route::post('/comentarios/{producto}', [ComentarioController::class, 'store'])->name('comentarios.store');
 Route::post('productos/{producto}/comentarios', [ComentarioController::class, 'store'])->name('comentarios.store');
 
-Route::get('/productodetalle', function () {
-    return view('productosprincipal.productodetalle');
-});
 Route::get('/contacto', [ContactoController::class, 'showForm'])->name('contacto.show');
 Route::post('/contacto', [ContactoController::class, 'sendContactForm'])->name('contacto.send');
 
@@ -180,12 +176,11 @@ Route::get('/proveedores', [ProveedorController::class, 'index'])->name('proveed
         Route::post('/gestion-sitio/agregar', [GestionSitioController::class, 'agregarContenido'])->name('gestionSitio.agregarContenido');
         Route::delete('/eliminar-contenido/{id}', [GestionSitioController::class, 'eliminarContenido'])->name('gestionSitio.eliminarContenido');
         Route::post('/update-header/{id}', [GestionSitioController::class, 'updateHeader'])->name('gestionSitio.updateHeader');
-        Route::post('/gestionSitio/updateHeader/{id}', [GestionSitioController::class, 'updateHeader'])->name('gestionSitio.updateHeader');
-Route::delete('/gestionSitio/eliminarHeader/{id}', [GestionSitioController::class, 'eliminarHeader'])->name('gestionSitio.eliminarHeader');
+        Route::delete('/gestionSitio/eliminarHeader/{id}', [GestionSitioController::class, 'eliminarHeader'])->name('gestionSitio.eliminarHeader');
 
-Route::get('/api/search-products', [GestionSitioController::class, 'searchProducts']);
+        Route::get('/api/search-products', [GestionSitioController::class, 'searchProducts']);
 
-Route::post('/gestion/actualizar-productos-destacados', [GestionSitioController::class, 'actualizarProductosDestacados'])->name('gestion.actualizarProductosDestacados');
+        Route::post('/gestion/actualizar-productos-destacados', [GestionSitioController::class, 'actualizarProductosDestacados'])->name('gestion.actualizarProductosDestacados');
 
         Route::get('/gestion/productos-destacados', [GestionSitioController::class, 'index'])->name('gestion.productosDestacados');
         Route::post('/gestion/productos-destacados/{id}', [GestionSitioController::class, 'actualizarProductoDestacado'])->name('gestion.actualizarProductoDestacado');
@@ -213,6 +208,8 @@ Route::prefix('ventas')->group(function () {
     Route::get('ordenes/{id}/problemas', [OrdenController::class, 'getProblemas'])->name('ordenes.getProblemas');
     Route::delete('problemas/{id}', [OrdenController::class, 'deleteProblema'])->name('problemas.delete');
     Route::patch('ordenes/{id}/retirado', [OrdenController::class, 'markAsRetirado'])->name('ordenes.markAsRetirado');
+    Route::patch('/ordenes/{id}/status', [OrdenController::class, 'updateStatus'])->name('ordenes.updateStatus');
+
 });
 
     });

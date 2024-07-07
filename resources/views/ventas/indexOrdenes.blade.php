@@ -23,7 +23,6 @@
             <table class="table w-100">
                 <thead>
                     <tr>
-                        <th>Referencia</th>
                         <th>Cliente</th>
                         <th>Total</th>
                         <th>Estado</th>
@@ -34,12 +33,11 @@
                 <tbody>
                     @forelse ($ordenes as $orden)
                     <tr>
-                        <td>{{ $orden->reference }}</td>
                         <td>
-                            @if($orden->user)
-                                {{ $orden->user->name }}
+                            @if($orden->detalleOrden)
+                                {{ $orden->detalleOrden->first_name }} {{ $orden->detalleOrden->last_name }}
                             @else
-                                <span title="Cliente Invitado">{{ $orden->detallesOrden->first_name }} {{ $orden->detallesOrden->last_name }} (Invitado)</span>
+                                Sin nombre
                             @endif
                         </td>
                         <td>$ {{ number_format($orden->total, 0, ',', '.') }}</td>
@@ -57,24 +55,12 @@
                             </span>
                         </td>
                         <td>
-                            @if($orden->status == 'rejected')
-                                <span class="badge bg-danger">Rechazada</span>
-                            @else
-                                {{ optional($orden->detallesOrden)->tipo_retiro }}
-                                @if(optional($orden->detallesOrden)->tipo_retiro == 'domicilio')
-                                    @if(optional($orden->detallesOrden)->listo_para_retiro)
-                                        <span class="badge bg-success">Enviado</span>
-                                    @else
-                                        <span class="badge bg-warning">Aún no enviado</span>
-                                    @endif
-                                @elseif(optional($orden->detallesOrden)->tipo_retiro == 'retiro')
-                                    @if(optional($orden->detallesOrden)->retirado)
-                                        <span class="badge bg-success">Retirado</span>
-                                    @else
-                                        <span class="badge bg-warning">No retirado</span>
-                                    @endif
-                                @endif
-                            @endif
+                            @if($orden->detalleOrden)
+                            {{ $orden->detalleOrden->tipo_retiro == 'retiro' ? 'Retiro en tienda' : 'Envío a domicilio' }}
+                        @else
+                            Sin tipo de retiro
+                        @endif
+                        
                         </td>
                         <td>
                             <a href="{{ route('ordenes.show', $orden->id) }}" class="btn btn-info">Ver</a>

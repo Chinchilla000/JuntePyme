@@ -272,9 +272,7 @@
                             </table>
                         </div>
                         <br>
-                        <div class="d-flex justify-content-center">
-                            {{ $categoriasPadre->links('pagination.custom', ['paginator' => $categoriasPadre]) }}
-                        </div>
+                     
                     </div>
                 </div>
             </div>
@@ -352,9 +350,7 @@
                             </table>
                         </div>
                         <br>
-                        <div class="d-flex justify-content-center">
-                            {{ $subcategorias->links('pagination.custom', ['paginator' => $subcategorias]) }}
-                        </div>
+                       
                     </div>
                 </div>
             </div>

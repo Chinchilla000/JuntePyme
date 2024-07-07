@@ -27,6 +27,6 @@ class ComentarioController extends Controller
 
         $comentario->save();
 
-        return redirect()->route('productosVentas.show', $productoId)->with('success', 'Comentario agregado exitosamente');
+        return redirect()->route('productosVentas.show', $productoId)->with('success_comentario', 'Comentario agregado exitosamente');
     }
 }

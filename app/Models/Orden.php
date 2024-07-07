@@ -6,7 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Orden extends Model
 {
-    protected $fillable = ['user_id', 'total', 'status', 'reference', 'session_id', 'discount_code'];
+    protected $fillable = [
+        'user_id', 
+        'total', 
+        'status', 
+        'reference', 
+        'session_id', 
+        'discount_code'
+    ];
 
     public function user()
     {
@@ -21,10 +28,11 @@ class Orden extends Model
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'orden_producto')
-                    ->withPivot('cantidad', 'precio','descuento');
+                    ->withPivot('cantidad', 'precio', 'descuento');
     }
+    
 
-    public function detallesOrden()
+    public function detalleOrden()
     {
         return $this->hasOne(DetalleOrden::class, 'orden_id');
     }

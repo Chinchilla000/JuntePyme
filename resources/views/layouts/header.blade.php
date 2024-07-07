@@ -281,8 +281,8 @@
             <div class="d-flex justify-content-between align-items-center">
                 <!-- Contenedor para el logo y el título -->
                 <div class="d-flex align-items-center">
-                    <img src="{{ asset('assets/img/gallery/logo2.png') }}" alt="Logo" class="logo me-2">
-                    <h1 class="header-title mb-0">FullBigotes</h1>
+                    <img src="{{ asset('assets/img/gallery/logoelmartillo.png') }}" alt="Logo" class="logo me-2">
+                    <h1 class="header-title mb-0">Ferreteria El Martillo</h1>
                 </div>
     
                 @if (Auth::check())

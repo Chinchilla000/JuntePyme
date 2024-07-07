@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\CarritoController;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -17,10 +18,19 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Compartir las categorías con todas las vistas
-        $categorias = Categoria::all();
-        View::share('categorias', $categorias);
+         // Compartir las categorías con todas las vistas que incluyen la navbar
+        View::composer(['layoutsprincipal.header', 'welcome','layoutsprincipal.nav', 'offcanvas-menu'], function ($view) {
+            $categoriasPadre = Categoria::with('subcategorias')->whereNull('categoria_padre_id')->get();
+            $view->with('categoriasPadre', $categoriasPadre);
 
+            $carritoProductos = app(CarritoController::class)->obtenerProductosDelCarrito();
+            $view->with('carritoProductos', $carritoProductos);
+            
+        });
+
+          // Compartir las categorías con todas las vistas
+          $categorias = Categoria::all();
+          View::share('categorias', $categorias);
         // Compartir los productos con todas las vistas
         $productos = Producto::all();
         View::share('productos', $productos);

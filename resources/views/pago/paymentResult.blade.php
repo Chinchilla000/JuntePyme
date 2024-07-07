@@ -1,94 +1,67 @@
 @include('layoutsprincipal.header')
-@include('layoutsprincipal.nav')
 
-<div class="container mt-5">
-    <br>
-    <br>
-    <div class="card shadow">
-        <div class="card-header text-center bg-primary text-white">
-            <h1>Resultado de la Transacción</h1>
-        </div>
-        <div class="card-body">
-            @php
-                $estado = '';
-                switch ($order->status) {
-                    case 'completed':
-                        $estado = 'completa';
-                        break;
-                    case 'pending':
-                        $estado = 'pendiente';
-                        break;
-                    case 'rejected':
-                        $estado = 'rechazada';
-                        break;
-                }
-            @endphp
-
-            @if($order->status == 'completed')
-                <div class="alert alert-success text-center">
-                    <h2>¡Pago aprobado!</h2>
-                    <p>Gracias por tu compra. Aquí están los detalles de tu orden:</p>
-                    <ul class="list-group">
-                        <li class="list-group-item"><strong>ID de Orden:</strong> {{ $order->id }}</li>
-                        <li class="list-group-item"><strong>Referencia:</strong> {{ $order->reference }}</li>
-                        <li class="list-group-item"><strong>Total:</strong> ${{ number_format($order->total, 0) }}</li>
-                        <li class="list-group-item"><strong>Estado:</strong> {{ $estado }}</li>
-                    </ul>
-                    <h3 class="mt-4">Detalles del Comprador:</h3>
-                    <ul class="list-group">
-                        @if ($order->user)
-                            <li class="list-group-item"><strong>Nombre:</strong> {{ $order->user->userInformation->nombre ?? $order->user->name }}</li>
-                            <li class="list-group-item"><strong>Rut:</strong> {{ $order->user->userInformation->rut ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Email:</strong> {{ $order->user->email }}</li>
-                            <li class="list-group-item"><strong>Teléfono:</strong> {{ $order->user->userInformation->telefono ?? 'vacío' }}</li>
-                        @else
-                            <li class="list-group-item"><strong>Nombre:</strong> {{ $order->detallesOrden->first_name }} {{ $order->detallesOrden->last_name }}</li>
-                            <li class="list-group-item"><strong>Email:</strong> {{ $order->detallesOrden->email }}</li>
-                            <li class="list-group-item"><strong>Teléfono:</strong> {{ $order->detallesOrden->phone }}</li>
-                        @endif
-                    </ul>
-                    <h3 class="mt-4">Detalles del Pedido:</h3>
-                    @if($order->detallesOrden->tipo_retiro == 'domicilio')
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-lg-12">
+            <div class="bg-light p-5 mb-5 text-center">
+                <h2 class="mb-4">¡Solicitud de Cotización Enviada!</h2>
+                <p class="lead mb-4">
+                    Gracias por su solicitud. Su solicitud de cotización ha sido recibida exitosamente. En breve, uno de nuestros agentes se pondrá en contacto con usted a través de WhatsApp al número proporcionado para confirmar la disponibilidad de los productos y continuar con la compra.
+                </p>
+                <h5 class="mb-3">Detalles de la Solicitud</h5>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
                         <ul class="list-group">
-                            <li class="list-group-item"><strong>Tipo de Retiro:</strong> Domicilio</li>
-                            <li class="list-group-item"><strong>País:</strong> {{ $order->detallesOrden->pais ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Dirección:</strong> {{ $order->detallesOrden->direccion ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Casa/Apartamento:</strong> {{ $order->detallesOrden->casa_apartamento ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Comuna:</strong> {{ $order->detallesOrden->comuna ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Región:</strong> {{ $order->detallesOrden->region ?? 'vacío' }}</li>
+                            <li class="list-group-item"><strong>Nombre:</strong> {{ $order->detalleOrden->first_name }} {{ $order->detalleOrden->last_name }}</li>
+                            <li class="list-group-item"><strong>RUT:</strong> {{ $order->detalleOrden->rut }}</li>
+                            <li class="list-group-item"><strong>Teléfono:</strong> {{ $order->detalleOrden->phone }}</li>
+                            <li class="list-group-item"><strong>Correo Electrónico:</strong> {{ $order->detalleOrden->email }}</li>
+                            <li class="list-group-item"><strong>Tipo de Retiro:</strong> {{ $order->detalleOrden->tipo_retiro == 'retiro' ? 'Retiro en tienda' : 'Envío a domicilio' }}</li>
+                            @if($order->detalleOrden->tipo_retiro == 'envio')
+                            <li class="list-group-item"><strong>Dirección:</strong> {{ $order->detalleOrden->direccion }}</li>
+                            <li class="list-group-item"><strong>Ciudad:</strong> {{ $order->detalleOrden->ciudad }}</li>
+                            @endif
                         </ul>
-                    @elseif($order->detallesOrden->tipo_retiro == 'retiro')
-                        <ul class="list-group">
-                            <li class="list-group-item"><strong>Tipo de Retiro:</strong> Retiro</li>
-                            <li class="list-group-item"><strong>Sucursal de Retiro:</strong> {{ $order->detallesOrden->sucursal_retiro ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>Nombre del Receptor:</strong> {{ $order->detallesOrden->nombre_receptor ?? 'vacío' }}</li>
-                            <li class="list-group-item"><strong>RUT del Receptor:</strong> {{ $order->detallesOrden->rut_receptor ?? 'vacío' }}</li>
-                        </ul>
-                    @endif
-                    <h3 class="mt-4">Productos:</h3>
-                    <ul class="list-group">
-                        @foreach($order->productos as $producto)
-                            @php
-                                $precioFinal = $producto->pivot->precio - ($producto->pivot->descuento ?? 0);
-                            @endphp
-                            <li class="list-group-item">{{ $producto->pivot->cantidad }} x {{ $producto->nombre }} - ${{ number_format($precioFinal, 0) }}</li>
-                        @endforeach
-                    </ul>
+                    </div>
                 </div>
-            @elseif($order->status == 'rejected')
-                <div class="alert alert-danger text-center">
-                    <h2>Pago rechazado</h2>
-                    <p>Lo sentimos, tu transacción no pudo ser procesada. Por favor, intenta nuevamente.</p>
+                <h5 class="mt-4">Detalles de los Productos</h5>
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Descuento Total</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($order->productos as $producto)
+                            <tr>
+                                <td>{{ $producto->nombre }}</td>
+                                <td>{{ $producto->pivot->cantidad }}</td>
+                                <td>${{ number_format($producto->pivot->precio, 0, ',', '.') }}</td>
+                                <td>${{ number_format($producto->pivot->descuento * $producto->pivot->cantidad, 0, ',', '.') }}</td>
+                                <td>${{ number_format(($producto->pivot->cantidad * $producto->pivot->precio) - ($producto->pivot->descuento * $producto->pivot->cantidad), 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-right">Total</th>
+                                <th>${{ number_format($order->total, 0, ',', '.') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-            @elseif($order->status == 'pending')
-                <div class="alert alert-warning text-center">
-                    <h2>Pago pendiente</h2>
-                    <p>Tu transacción está en proceso. Te notificaremos una vez que se haya completado.</p>
-                </div>
-            @endif
+                <p class="text-muted">
+                    Para cualquier consulta adicional, no dude en contactarnos. ¡Gracias por su preferencia!
+                </p>
+                <a href="{{ route('welcome') }}" class="btn btn-primary">Volver a la tienda</a>
+            </div>
         </div>
     </div>
 </div>
-<br>
 
 @include('layoutsprincipal.footer')

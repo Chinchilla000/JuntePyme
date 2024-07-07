@@ -108,7 +108,6 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Orden ID</th>
                                                 <th>Cliente</th>
                                                 <th>Total</th>
                                                 <th>Fecha</th>
@@ -119,15 +118,10 @@
                                         <tbody>
                                             @foreach ($recentOrders as $order)
                                                 <tr>
-                                                    <td>{{ $order->reference }}</td>
                                                     <td>
-                                                        @if ($order->user)
-                                                            {{ $order->user->name }}
-                                                        @else
-                                                            <span title="Cliente Invitado">{{ $order->detallesOrden->first_name }} {{ $order->detallesOrden->last_name }} (Invitado)</span>
-                                                        @endif
+                                                        {{ $order->detalleOrden->first_name }} {{ $order->detalleOrden->last_name }}
                                                     </td>
-                                                    <td>${{ number_format($order->total, 0) }}</td>
+                                                    <td>${{ number_format($order->total, 0, ',', '.') }}</td>
                                                     <td>{{ $order->created_at->format('d-m-Y') }}</td>
                                                     <td>
                                                         <span class="badge 
@@ -150,10 +144,8 @@
                                                 </tr>
                                             @endforeach
                                         </tbody>
-                                        
-                                        
                                     </table>
-                                </div>
+                                                                    </div>
                             </div>
                         </div>
                     </div>

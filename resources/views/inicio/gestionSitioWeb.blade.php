@@ -110,7 +110,7 @@
                         </div>
                         <div class="col-sm-5 text-center">
                             <div class="card-body pb-0 px-0 px-md-4">
-                                <img src="{{ asset('assets/img/gallery/logo2.png') }}" height="140" alt="View Badge User"
+                                <img src="{{ asset('assets/img/gallery/logoelmartillo.png') }}" height="140" alt="View Badge User"
                                     style="max-width: 100%; height: auto;" />
                             </div>
                         </div>

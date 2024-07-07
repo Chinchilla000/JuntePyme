@@ -19,22 +19,13 @@ class DetalleOrden extends Model
         'last_name',
         'email',
         'tipo_retiro',
-        'pais',
         'direccion',
-        'casa_apartamento',
-        'comuna',
-        'region',
-        'sucursal_retiro',
-        'nombre_receptor',
-        'rut_receptor',
-        'listo_para_retiro',
-        'retirado',
-        'numero_seguimiento',
-        'proveedor',
+        'ciudad',
     ];
 
     public function orden()
     {
         return $this->belongsTo(Orden::class, 'orden_id');
     }
+    
 }

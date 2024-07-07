@@ -52,6 +52,7 @@
 </div>
 <!-- Carousel Termino -->
 
+
 <!-- Productos destacados -->
 <div class="container-fluid py-5">
     <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
@@ -133,7 +134,7 @@
     <div class="row px-xl-5 pb-3">
         @foreach($categoriasPadre as $categoria)
             <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="{{ route('categorias.show', $categoria->id) }}">
+                <a class="text-decoration-none" href="{{ route('productosVentas.categoria', $categoria->id) }}">
                     <div class="cat-item d-flex align-items-center mb-4">
                         <div class="overflow-hidden" style="width: 100px; height: 100px;">
                             <img class="img-fluid" src="{{ asset('storage/imagenes_categorias/' . $categoria->imagen_categoria) }}" alt="{{ $categoria->nombre }}">
@@ -171,16 +172,18 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="product-item bg-light h-100">
                         <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                            <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: cover;" alt="{{ $producto->nombre }}">
+                            <a href="{{ url('/productodetalle', $producto->id) }}">
+                                <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: cover;" alt="{{ $producto->nombre }}">
+                            </a>
                             <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href="{{ route('productos.show', $producto->id) }}"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href="{{ route('productosVentas.show', $producto->id) }}"><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="{{ route('productos.show', $producto->id) }}">{{ $producto->nombre }}</a>
+                            <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5>${{ number_format($producto->precio_final, 0) }}</h5><h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
                             </div>
@@ -204,6 +207,73 @@
     </div>
 </div>
 <!-- Productos Termino -->
+<!-- Script para cargar la pagina cuando agrega al carrito -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function agregarProductoAlCarrito(productoId) {
+            fetch('{{ route("carrito.agregar-ajax") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    console.log('Producto agregado al carrito');
+                    // Actualizar el contador del carrito en la barra de navegación
+                    const carritoCountElement = document.querySelector('.fa-shopping-cart + .badge');
+                    if (carritoCountElement) {
+                        carritoCountElement.textContent = data.count;
+                    }
+                    // Mostrar el modal de confirmación
+                    var successCarritoModal = new bootstrap.Modal(document.getElementById('successCarritoModal'), {});
+                    successCarritoModal.show();
+    
+                    // Recargar la página después de cerrar el modal
+                    document.getElementById('closeCarritoModalBtn').addEventListener('click', function () {
+                        location.reload();
+                    });
+    
+                    // También recargar la página cuando el modal se oculta automáticamente
+                    document.getElementById('successCarritoModal').addEventListener('hidden.bs.modal', function () {
+                        location.reload();
+                    });
+                } else {
+                    console.error('Error al agregar el producto al carrito');
+                }
+            }).catch(error => {
+                console.error('Error en la solicitud:', error);
+            });
+        }
+    
+        // Agregar evento de clic a todos los botones de agregar al carrito
+        document.querySelectorAll('.btn-agregar-carrito').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Evitar la acción predeterminada del enlace
+                const productoId = this.dataset.productoId;
+                agregarProductoAlCarrito(productoId);
+            });
+        });
+    });
+</script>
+    <!-- Modal de éxito para carrito -->
+<div class="modal fade" id="successCarritoModal" tabindex="-1" aria-labelledby="successCarritoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title text-white" id="successCarritoModalLabel">Producto agregado al carrito</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fa fa-check-circle fa-3x text-success mb-3"></i>
+                <p class="mb-0">Producto agregado al carrito exitosamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeCarritoModalBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- Informativo Inicio -->
@@ -226,7 +296,8 @@
     </div>
 </div>
 <!-- Informativo Termino -->
-<!-- Products Inicio -->
+
+<!-- Productos Inicio -->
 <div class="container-fluid pt-5 pb-3">
     <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
         <span class="bg-secondary pr-3">Productos</span>
@@ -238,16 +309,19 @@
                     <div class="product-img position-relative overflow-hidden" style="height: 250px;">
                         <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
                         <div class="product-action">
-                            <a class="btn btn-outline-dark btn-square" href="{{ route('productos.show', $producto->id) }}"><i class="fa fa-shopping-cart"></i></a>
-                            <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                            <a class="btn btn-outline-dark btn-square" href="{{ route('productos.show', $producto->id) }}"><i class="fa fa-search"></i></a>
+                            <a class="btn btn-outline-dark btn-square btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
+                            <a class="btn btn-outline-dark btn-square" href="{{ route('productosVentas.show', $producto->id) }}"><i class="fa fa-search"></i></a>
                         </div>
                     </div>
                     <div class="text-center py-4">
                         <a class="h6 text-decoration-none text-truncate" href="{{ route('productos.show', $producto->id) }}">{{ $producto->nombre }}</a>
                         <div class="d-flex align-items-center justify-content-center mt-2">
                             <h5>${{ number_format($producto->precio_final, 0) }}</h5>
+                            @if ($producto->precio_final < $producto->precio_venta_bruto)
+                                <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
+                            @endif
                         </div>
                         <div class="d-flex align-items-center justify-content-center mb-1">
                             @for ($i = 0; $i < 5; $i++)
@@ -267,7 +341,7 @@
         @endforeach
     </div>
 </div>
-<!-- Products Termino -->
+<!-- Productos Termino -->
 
 
 
