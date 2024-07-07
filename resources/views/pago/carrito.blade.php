@@ -34,13 +34,13 @@
                         <td class="align-middle">
                             <div class="input-group quantity mx-auto" style="width: 100px;">
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-primary btn-minus" type="button">
+                                    <button class="btn btn-sm btn-primary btn-minus">
                                         <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
                                 <input type="number" class="form-control form-control-sm bg-secondary border-0 text-center cantidad" value="{{ $item->cantidad }}" min="1">
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-primary btn-plus" type="button">
+                                    <button class="btn btn-sm btn-primary btn-plus">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
@@ -48,7 +48,7 @@
                         </td>
                         <td class="align-middle total">${{ number_format($item->total, 0, ',', '.') }}</td>
                         <td class="align-middle">
-                            <button class="btn btn-sm btn-danger btn-remove" type="button"><i class="fa fa-times"></i></button>
+                            <button class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></button>
                         </td>
                     </tr>
                     @endforeach
@@ -67,7 +67,7 @@
                 <div class="pt-2">
                     <div class="d-flex justify-content-between mt-2">
                         <h5>Total</h5>
-                        <h5 id="total">${{ number_format($subtotal, 0, ',', '.') }}</h5>
+                        <h5 id="total">${{ number_format($total, 0, ',', '.') }}</h5>
                     </div>
                     <a href="{{ route('checkout.index') }}" class="btn btn-block btn-primary font-weight-bold my-3 py-3">Proceder a la Solicitud de Compra</a>
                 </div>
@@ -88,8 +88,36 @@
             document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
             document.getElementById('total').textContent = `$${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
         }
-
+    
+        // Funcionalidad de los botones + y -
+        document.querySelectorAll('.btn-minus').forEach(button => {
+            button.addEventListener('click', function() {
+                var row = this.closest('tr[data-producto-id]');
+                var input = row.querySelector('.cantidad');
+                var value = parseInt(input.value);
+                if (value > 1) {
+                    value - 1; // Aquí corregí el operador
+                    input.value = value;
+                    actualizarCantidad(row.dataset.productoId, value, row);
+                } else {
+                    actualizarCantidad(row.dataset.productoId, value, row); // Forzar actualización en 1
+                }
+            });
+        });
+    
+        document.querySelectorAll('.btn-plus').forEach(button => {
+            button.addEventListener('click', function() {
+                var row = this.closest('tr[data-producto-id]');
+                var input = row.querySelector('.cantidad');
+                var value = parseInt(input.value);
+                value + 1; // Aquí corregí el operador
+                input.value = value;
+                actualizarCantidad(row.dataset.productoId, value, row);
+            });
+        });
+    
         function actualizarCantidad(productoId, cantidad, row) {
+            console.log('Actualizando cantidad para producto:', productoId, 'a cantidad:', cantidad);
             fetch('{{ route("carrito.actualizar-cantidad") }}', {
                 method: 'POST',
                 headers: {
@@ -100,13 +128,25 @@
             }).then(response => response.json()).then(data => {
                 if (data.success) {
                     var precioFinal = parseFloat(row.querySelector('.precio-final').textContent.replace(/[$.]/g, '').replace(',', '.'));
+                    console.log('Precio final del producto:', precioFinal);
+                    console.log('Cantidad para el cálculo del total:', cantidad);
                     row.querySelector('.total').textContent = `$${(precioFinal * cantidad).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
                     actualizarSubtotalTotal();
                 }
             });
         }
-
+    
+        // Eliminar producto del carrito
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', function() {
+                var row = this.closest('tr[data-producto-id]');
+                var productoId = row.dataset.productoId;
+                eliminarProducto(productoId, row);
+            });
+        });
+    
         function eliminarProducto(productoId, row) {
+            console.log('Eliminando producto con ID:', productoId);
             fetch('{{ route("carrito.eliminar-producto") }}', {
                 method: 'POST',
                 headers: {
@@ -122,38 +162,52 @@
                 }
             });
         }
-
-        // Funcionalidad de los botones + y -
-        document.querySelectorAll('.btn-minus').forEach(button => {
-            button.addEventListener('click', function() {
-                var row = this.closest('tr[data-producto-id]');
-                var input = row.querySelector('.cantidad');
-                var value = parseInt(input.value);
-                if (value > 1) {
-                    input.value = value - 1; // Decrementar en 1
-                    actualizarCantidad(row.dataset.productoId, input.value, row);
-                }
+    });
+    </script>
+    <script>
+       document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('proceed-to-checkout').addEventListener('click', function() {
+            let carritoProductos = [];
+            document.querySelectorAll('tr[data-producto-id]').forEach(row => {
+                let productoId = row.dataset.productoId;
+                let cantidad = parseInt(row.querySelector('.cantidad').value);
+                let precioFinal = parseFloat(row.querySelector('.precio-final').textContent.replace(/[$.]/g, '').replace(',', '.'));
+                carritoProductos.push({
+                    producto_id: productoId,
+                    nombre: row.querySelector('.align-middle').textContent.trim(),
+                    cantidad: cantidad,
+                    precio_final: precioFinal
+                });
             });
-        });
 
-        document.querySelectorAll('.btn-plus').forEach(button => {
-            button.addEventListener('click', function() {
-                var row = this.closest('tr[data-producto-id]');
-                var input = row.querySelector('.cantidad');
-                input.value = parseInt(input.value) + 1; // Incrementar en 1
-                actualizarCantidad(row.dataset.productoId, input.value, row);
-            });
-        });
+            // Log the carritoProductos to ensure it's being populated correctly
+            console.log('Carrito Productos:', carritoProductos);
 
-        // Eliminar producto del carrito
-        document.querySelectorAll('.btn-remove').forEach(button => {
-            button.addEventListener('click', function() {
-                var row = this.closest('tr[data-producto-id]');
-                var productoId = row.dataset.productoId;
-                eliminarProducto(productoId, row);
-            });
+            // Check if carritoProductos is populated correctly
+            if (carritoProductos.length > 0) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('checkout.index') }}';
+
+                let csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+
+                let carritoInput = document.createElement('input');
+                carritoInput.type = 'hidden';
+                carritoInput.name = 'carrito';
+                carritoInput.value = JSON.stringify(carritoProductos);
+                form.appendChild(carritoInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                console.error('No hay productos en el carrito para enviar.');
+            }
         });
     });
-</script>
+    </script>
 
 @include('layoutsprincipal.footer')

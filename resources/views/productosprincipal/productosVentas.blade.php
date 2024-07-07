@@ -84,29 +84,31 @@
                     <div class="row pb-3">
 
                         @foreach($productos as $producto)
-                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
-                                <div class="product-item bg-light mb-4" style="height: 100%;">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                                        <img class="img-fluid w-100 h-100" style="object-fit: contain;" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" alt="{{ $producto->nombre }}">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                            <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                            <a class="btn btn-outline-dark btn-square" href="{{ route('productosVentas.show', $producto->id) }}"><i class="fa fa-search"></i></a>
-                                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                            <div class="product-item bg-light mb-4 h-100">
+                                <div class="product-img position-relative overflow-hidden" style="height: 250px;">
+                                    <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
+                                </div>
+                                <div class="text-center py-4">
+                                    <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
+                                    <div class="d-flex align-items-center justify-content-center mt-2">
+                                        <h5 class="text-danger">${{ number_format($producto->precio_final, 0) }}</h5>
+                                        @if ($producto->descuento)
+                                            <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
+                                        @endif
                                     </div>
-                                    <div class="text-center py-4" style="height: 150px;">
-                                        <a class="h6 text-decoration-none text-truncate" href="">{{ $producto->nombre }}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>${{ number_format($producto->precio_final, 0) }}</h5>
-                                            @if($producto->precio_venta_bruto != $producto->precio_final)
-                                                <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
-                                            @endif
-                                        </div>
+                                    <div class="d-flex justify-content-center mt-2">
+                                        <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
+                                            <i class="fa fa-search"></i> Ver Detalle
+                                        </a>
+                                        <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
+                                            <i class="fa fa-shopping-cart"></i> Añadir al Carrito
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        </div>
+                    @endforeach
 
                         <div class="col-12">
                             <nav>

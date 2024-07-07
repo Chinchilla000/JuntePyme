@@ -152,13 +152,11 @@ sup {
 }
 
 a {
-  color: #FFD333;
   text-decoration: none;
   background-color: transparent;
 }
 
 a:hover {
-  color: #e6b400;
   text-decoration: underline;
 }
 
@@ -2922,7 +2920,6 @@ fieldset:disabled a.btn {
 }
 
 .btn-link:hover {
-  color: #e6b400;
   text-decoration: underline;
 }
 
@@ -4589,7 +4586,6 @@ input[type="button"].btn-block {
 
 .page-link:hover {
   z-index: 2;
-  color: #e6b400;
   text-decoration: none;
   background-color: #e9ecef;
   border-color: #dee2e6;
@@ -9678,9 +9674,7 @@ a.text-dark:hover, a.text-dark:focus {
   transform: scale(1.2);
 }
 
-.product-item .btn:hover {
-  color: #FFD333 !important;
-}
+
 
 .table.table-borderless thead tr,
 .table.table-borderless tbody tr:not(:last-child) {
