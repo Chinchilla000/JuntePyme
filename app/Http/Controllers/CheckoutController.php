@@ -11,6 +11,8 @@ use App\Models\Descuento;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DetalleOrden;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderDetailsMail;
 
 class CheckoutController extends Controller
 {
@@ -55,6 +57,7 @@ class CheckoutController extends Controller
 
         return view('pago.checkout', compact('carritoProductos', 'subtotal'));
     }
+
     public function processCheckout(Request $request)
     {
         $validated = $request->validate([
@@ -128,8 +131,12 @@ class CheckoutController extends Controller
                 'descuento' => $item->descuento_id,
             ]);
         }
-// Vaciar el carrito de la sesión
-Carrito::where('session_id', $sessionId)->delete();
+
+        // Vaciar el carrito de la sesión
+        Carrito::where('session_id', $sessionId)->delete();
+
+       // Enviar el correo electrónico
+       Mail::to($validated['correo'])->send(new OrderDetailsMail($orden));
 
         $orden->load('detalleOrden'); // Cargar la relación detalleOrden
 

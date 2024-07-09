@@ -17,94 +17,122 @@ class ProductosVentasController extends Controller
 {
     // Método para mostrar los productos en la vista pública con filtros
     public function index(Request $request)
-{
-    // Filtrar los productos que están listos para vender
-    $query = Producto::where('estado', 1)->with(['descuento', 'categoria', 'especificaciones']);
+    {
+        // Filtrar los productos que están listos para vender
+        $query = Producto::where('estado', 1)->with(['descuento', 'categoria', 'especificaciones']);
 
-    // Aplicar filtros de marca
-    if ($request->has('marca')) {
-        $query->whereIn('marca', $request->input('marca'));
-    }
+        // Aplicar filtros de marca
+        if ($request->has('marca')) {
+            $query->whereIn('marca', $request->input('marca'));
+        }
 
-    // Aplicar filtros de especificaciones (peso, edad mascota, necesidades especiales)
-    if ($request->has('peso')) {
-        $query->whereHas('especificaciones', function($q) use ($request) {
-            $q->where('clave', 'Peso')->whereIn('valor', $request->input('peso'));
-        });
-    }
-
-    if ($request->has('edad_mascota')) {
-        $query->whereHas('especificaciones', function($q) use ($request) {
-            $q->where('clave', 'Edad Mascota')->whereIn('valor', $request->input('edad_mascota'));
-        });
-    }
-
-    if ($request->has('necesidades_especiales')) {
-        $query->whereHas('especificaciones', function($q) use ($request) {
-            $q->where('clave', 'Necesidades Especiales')->whereIn('valor', $request->input('necesidades_especiales'));
-        });
-    }
-
-    // Detectar si la URL es para productos con descuento
-    $esDescuento = $request->is('descuentosProductos');
-    $esWelcome = $request->is('/'); // O la ruta que uses para welcome
-
-    if ($esDescuento) {
-        // Filtrar productos que tienen descuento activo
-        $hoy = Carbon::now();
-        $query->whereHas('descuento', function ($query) use ($hoy) {
-            $query->where('inicio', '<=', $hoy)->where('fin', '>=', $hoy);
-        });
-    }
-
-    if ($esWelcome) {
-        $productos = $query->orderBy('nombre', 'asc')->get(); // Obtener todos los productos para welcome
-    } else {
-        $productos = $query->orderBy('nombre', 'asc')->paginate(16); // Paginación para las otras vistas
-    }
-
-    // Obtener opciones de filtro
-    $marcas = Producto::where('estado', 1)->distinct()->pluck('marca');
-    $pesos = Especificacion::where('clave', 'Peso')->distinct()->pluck('valor');
-    $edadesMascota = Especificacion::where('clave', 'Edad Mascota')->distinct()->pluck('valor');
-    $necesidadesEspeciales = Especificacion::where('clave', 'Necesidades Especiales')->distinct()->pluck('valor');
-
-    // Obtener los productos destacados
-    $productosDestacados = Producto::where('es_destacado', true)->where('estado', 1)->distinct()->get();
-    $viewData['productosDestacados'] = $productosDestacados;
-
-    // Obtener categorías y subcategorías
-    $categoriasPadre = Categoria::with('subcategorias')->whereNull('categoria_padre_id')->get();
-    $viewData['categoriasPadre'] = $categoriasPadre;
-
-    // Agregar precios finales con descuento a los productos con descuento
-    foreach ($productos as $producto) {
-        $producto->precio_final = $producto->precio_venta_bruto;
-        if ($producto->descuento) {
-            if ($producto->descuento->porcentaje) {
-                $producto->precio_final = $producto->precio_venta_bruto * (1 - $producto->descuento->porcentaje / 100);
-            } elseif ($producto->descuento->monto) {
-                $producto->precio_final = $producto->precio_venta_bruto - $producto->descuento->monto;
+        // Aplicar filtros de precio
+        if ($request->has('precio')) {
+            $precios = $request->input('precio');
+            foreach ($precios as $precioRango) {
+                $precioRango = explode('-', $precioRango);
+                $precioMin = $precioRango[0];
+                $precioMax = $precioRango[1];
+                $query->whereBetween('precio_venta_bruto', [$precioMin, $precioMax]);
             }
         }
+
+        // Aplicar filtros de tipo de trabajo
+        if ($request->has('tipo_trabajo')) {
+            $query->whereHas('especificaciones', function($q) use ($request) {
+                $q->where('clave', 'Tipo de Trabajo')->whereIn('valor', $request->input('tipo_trabajo'));
+            });
+        }
+
+        // Aplicar filtros de otras especificaciones
+        if ($request->has('otra_especificacion')) {
+            $query->whereHas('especificaciones', function($q) use ($request) {
+                $q->where('clave', 'Otra Especificación')->whereIn('valor', $request->input('otra_especificacion'));
+            });
+        }
+
+        // Detectar si la URL es para productos con descuento
+        $esDescuento = $request->is('descuentosProductos');
+        $esWelcome = $request->is('/'); // O la ruta que uses para welcome
+
+        if ($esDescuento) {
+            // Filtrar productos que tienen descuento activo
+            $hoy = Carbon::now();
+            $query->whereHas('descuento', function ($query) use ($hoy) {
+                $query->where('inicio', '<=', $hoy)->where('fin', '>=', $hoy);
+            });
+        }
+
+        if ($esWelcome) {
+            $productos = $query->orderBy('nombre', 'asc')->get(); // Obtener todos los productos para welcome
+        } else {
+            $productos = $query->orderBy('nombre', 'asc')->paginate(16); // Paginación para las otras vistas
+        }
+
+        // Obtener opciones de filtro
+        $marcas = Producto::where('estado', 1)->distinct()->pluck('marca');
+        $pesos = Especificacion::where('clave', 'Peso')->distinct()->pluck('valor');
+        $edadesMascota = Especificacion::where('clave', 'Edad Mascota')->distinct()->pluck('valor');
+        $necesidadesEspeciales = Especificacion::where('clave', 'Necesidades Especiales')->distinct()->pluck('valor');
+
+        // Obtener los productos destacados
+        $productosDestacados = Producto::where('es_destacado', true)->where('estado', 1)->distinct()->get();
+        $viewData['productosDestacados'] = $productosDestacados;
+
+        // Obtener categorías y subcategorías
+        $categoriasPadre = Categoria::with('subcategorias')->whereNull('categoria_padre_id')->get();
+        $viewData['categoriasPadre'] = $categoriasPadre;
+
+        // Obtener todos los productos para calcular los rangos de precios
+        $todosLosProductos = Producto::where('estado', 1)->get();
+        $minPrice = floor($todosLosProductos->min('precio_venta_bruto') / 1000) * 1000;
+        $maxPrice = ceil($todosLosProductos->max('precio_venta_bruto') / 1000) * 1000;
+
+        $precios = [];
+        for ($i = $minPrice; $i <= $maxPrice; $i += 5000) {
+            $precios[] = [
+                'min' => $i,
+                'max' => $i + 4999
+            ];
+        }
+
+        // Obtener opciones de filtro específicas para la categoría o subcategoría actual
+        $tiposTrabajo = Especificacion::where('clave', 'Tipo de Trabajo')
+            ->distinct()
+            ->pluck('valor');
+
+        $otrasEspecificaciones = Especificacion::where('clave', 'Otra Especificación')
+            ->distinct()
+            ->pluck('valor');
+
+        // Agregar precios finales con descuento a los productos con descuento
+        foreach ($productos as $producto) {
+            $producto->precio_final = $producto->precio_venta_bruto;
+            if ($producto->descuento) {
+                if ($producto->descuento->porcentaje) {
+                    $producto->precio_final = $producto->precio_venta_bruto * (1 - $producto->descuento->porcentaje / 100);
+                } elseif ($producto->descuento->monto) {
+                    $producto->precio_final = $producto->precio_venta_bruto - $producto->descuento->monto;
+                }
+            }
+        }
+
+        $viewData = compact('productos', 'marcas', 'pesos', 'edadesMascota', 'necesidadesEspeciales', 'productosDestacados', 'categoriasPadre', 'precios', 'tiposTrabajo', 'otrasEspecificaciones');
+
+        if ($esDescuento) {
+            return view('descuentosInicio.descuentos', $viewData);
+        }
+
+        if ($esWelcome) {
+            $informaciones = Informacion::all();
+            $informacionesI = Informacion::where('tipo', 'informativo')->get();
+            $viewData['informaciones'] = $informaciones;
+            $viewData['informacionesI'] = $informacionesI;
+            return view('welcome', $viewData);
+        }
+
+        return view('productosprincipal.productos', $viewData);
     }
-
-    $viewData = compact('productos', 'marcas', 'pesos', 'edadesMascota', 'necesidadesEspeciales', 'productosDestacados', 'categoriasPadre');
-
-    if ($esDescuento) {
-        return view('descuentosInicio.descuentos', $viewData);
-    }
-
-    if ($esWelcome) {
-        $informaciones = Informacion::all();
-        $informacionesI = Informacion::where('tipo', 'informativo')->get();
-        $viewData['informaciones'] = $informaciones;
-        $viewData['informacionesI'] = $informacionesI;
-        return view('welcome', $viewData);
-    }
-
-    return view('productosprincipal.productos', $viewData);
-}
 
 public function show($id)
 {
@@ -156,13 +184,158 @@ public function show($id)
     }
 }
 
-    // Método para mostrar productos por categoría con filtros
-    public function showProductsByCategory(Request $request, $categoriaId)
-    {
-        $categoria = Categoria::findOrFail($categoriaId);
-        $filters = $request->all(); // Obtener todos los filtros
+// Método para mostrar productos por categoría con filtros
+public function showProductsByCategory(Request $request, $categoriaId)
+{
+    $categoria = Categoria::findOrFail($categoriaId);
+    $filters = $request->all(); // Obtener todos los filtros
 
-        $query = Producto::where('estado', 1)
+    $query = Producto::where('estado', 1)
+        ->where(function($q) use ($categoria) {
+            if ($categoria->categoria_padre_id === null) {
+                $q->where('categoria_id', $categoria->id)
+                ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
+            } else {
+                $q->where('categoria_id', $categoria->id);
+            }
+        });
+
+    // Aplicar filtros de marca
+    if ($request->has('marca')) {
+        $query->whereHas('especificaciones', function($q) use ($request) {
+            $q->where('clave', 'Marca')->whereIn('valor', $request->input('marca'));
+        });
+    }
+
+    // Aplicar filtros de precio
+    if ($request->has('precio')) {
+        $precios = $request->input('precio');
+        foreach ($precios as $precioRango) {
+            $precioRango = explode('-', $precioRango);
+            $precioMin = $precioRango[0];
+            $precioMax = $precioRango[1];
+            $query->whereBetween('precio_venta_bruto', [$precioMin, $precioMax]);
+        }
+    }
+
+    // Aplicar filtros de tipo de trabajo
+    if ($request->has('tipo_trabajo')) {
+        $query->whereHas('especificaciones', function($q) use ($request) {
+            $q->where('clave', 'Tipo de Trabajo')->whereIn('valor', $request->input('tipo_trabajo'));
+        });
+    }
+
+    // Aplicar filtros de otras especificaciones
+    if ($request->has('otra_especificacion')) {
+        $query->whereHas('especificaciones', function($q) use ($request) {
+            $q->where('clave', 'Otra Especificación')->whereIn('valor', $request->input('otra_especificacion'));
+        });
+    }
+
+    // Obtener los productos filtrados
+    $productos = $query->orderBy('nombre', 'asc')->paginate(12);
+
+    // Obtener rangos de precios dinámicamente basados en todos los productos de la categoría
+    $todosLosProductos = Producto::where('estado', 1)
+        ->where(function($q) use ($categoria) {
+            if ($categoria->categoria_padre_id === null) {
+                $q->where('categoria_id', $categoria->id)
+                ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
+            } else {
+                $q->where('categoria_id', $categoria->id);
+            }
+        })
+        ->get();
+
+    $minPrice = floor($todosLosProductos->min('precio_venta_bruto') / 1000) * 1000;
+    $maxPrice = ceil($todosLosProductos->max('precio_venta_bruto') / 1000) * 1000;
+
+    $precios = [];
+    for ($i = $minPrice; $i <= $maxPrice; $i += 5000) {
+        $precios[] = [
+            'min' => $i,
+            'max' => $i + 4999
+        ];
+    }
+
+    // Obtener opciones de filtro específicas para la categoría o subcategoría actual
+    $marcas = Especificacion::where('clave', 'Marca')
+        ->whereHas('producto', function($q) use ($categoria) {
+            $q->where('estado', 1)
+            ->where(function($q2) use ($categoria) {
+                if ($categoria->categoria_padre_id === null) {
+                    $q2->where('categoria_id', $categoria->id)
+                        ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
+                } else {
+                    $q2->where('categoria_id', $categoria->id);
+                }
+            });
+        })
+        ->distinct()
+        ->pluck('valor');
+
+    $tiposTrabajo = Especificacion::where('clave', 'Tipo de Trabajo')
+        ->whereHas('producto', function($q) use ($categoria) {
+            $q->where('estado', 1)
+            ->where(function($q2) use ($categoria) {
+                if ($categoria->categoria_padre_id === null) {
+                    $q2->where('categoria_id', $categoria->id)
+                        ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
+                } else {
+                    $q2->where('categoria_id', $categoria->id);
+                }
+            });
+        })
+        ->distinct()
+        ->pluck('valor');
+
+    $otrasEspecificaciones = Especificacion::where('clave', 'Otra Especificación')
+        ->whereHas('producto', function($q) use ($categoria) {
+            $q->where('estado', 1)
+            ->where(function($q2) use ($categoria) {
+                if ($categoria->categoria_padre_id === null) {
+                    $q2->where('categoria_id', $categoria->id)
+                        ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
+                } else {
+                    $q2->where('categoria_id', $categoria->id);
+                }
+            });
+        })
+        ->distinct()
+        ->pluck('valor');
+
+    // Calcular precio final con descuento
+    foreach ($productos as $producto) {
+        $producto->precio_final = $producto->precio_venta_bruto;
+        if ($producto->descuento) {
+            if ($producto->descuento->porcentaje) {
+                $producto->precio_final = $producto->precio_venta_bruto * (1 - $producto->descuento->porcentaje / 100);
+            } elseif ($producto->descuento->monto) {
+                $producto->precio_final = $producto->precio_venta_bruto - $producto->descuento->monto;
+            }
+        }
+    }
+
+    return view('productosprincipal.productosVentas', compact('productos', 'categoria', 'marcas', 'precios', 'tiposTrabajo', 'otrasEspecificaciones', 'filters'));
+}
+
+    // Método para buscar productos por categoría
+    public function buscar(Request $request, $categoriaId)
+    {
+        $query = $request->input('query');
+        $categoria = Categoria::findOrFail($categoriaId);
+
+        // Filtrar productos por categoría y búsqueda
+        $productos = Producto::where('estado', 1)
+            ->where('categoria_id', $categoria->id)
+            ->where(function ($q) use ($query) {
+                $q->where('nombre', 'LIKE', "%{$query}%")
+                ->orWhere('descripcion', 'LIKE', "%{$query}%");
+            })
+            ->paginate(12);
+
+        // Obtener rangos de precios dinámicamente basados en todos los productos de la categoría
+        $todosLosProductos = Producto::where('estado', 1)
             ->where(function($q) use ($categoria) {
                 if ($categoria->categoria_padre_id === null) {
                     $q->where('categoria_id', $categoria->id)
@@ -170,71 +343,24 @@ public function show($id)
                 } else {
                     $q->where('categoria_id', $categoria->id);
                 }
-            });
+            })
+            ->get();
 
-        // Aplicar filtros de marca
-        if ($request->has('marca')) {
-            $query->whereHas('especificaciones', function($q) use ($request) {
-                $q->where('clave', 'Marca')->whereIn('valor', $request->input('marca'));
-            });
-        }
-
-        // Aplicar filtros de precio
-        if ($request->has('precio')) {
-            $precios = $request->input('precio');
-            foreach ($precios as $precioRango) {
-                $precioRango = explode('-', $precioRango);
-                $precioMin = $precioRango[0];
-                $precioMax = $precioRango[1];
-                $query->whereBetween('precio_venta_bruto', [$precioMin, $precioMax]);
-            }
-        }
-
-        // Aplicar filtros de tipo de trabajo
-        if ($request->has('tipo_trabajo')) {
-            $query->whereHas('especificaciones', function($q) use ($request) {
-                $q->where('clave', 'Tipo de Trabajo')->whereIn('valor', $request->input('tipo_trabajo'));
-            });
-        }
-
-        // Aplicar filtros de otras especificaciones
-        if ($request->has('otra_especificacion')) {
-            $query->whereHas('especificaciones', function($q) use ($request) {
-                $q->where('clave', 'Otra Especificación')->whereIn('valor', $request->input('otra_especificacion'));
-            });
-        }
-
-        // Obtener los productos filtrados
-        $productos = $query->orderBy('nombre', 'asc')->paginate(12);
-
-        // Obtener rangos de precios dinámicamente basados en los productos filtrados
-        $minPrice = $query->min('precio_venta_bruto');
-        $maxPrice = $query->max('precio_venta_bruto');
-        $priceRange = ($maxPrice - $minPrice) / 5;
+        $minPrice = floor($todosLosProductos->min('precio_venta_bruto') / 1000) * 1000;
+        $maxPrice = ceil($todosLosProductos->max('precio_venta_bruto') / 1000) * 1000;
 
         $precios = [];
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = $minPrice; $i <= $maxPrice; $i += 5000) {
             $precios[] = [
-                'min' => $minPrice + ($priceRange * $i),
-                'max' => $minPrice + ($priceRange * ($i + 1)) - 1
+                'min' => $i,
+                'max' => $i + 4999
             ];
         }
 
-        // Obtener opciones de filtro específicas para la categoría o subcategoría actual
-        $marcas = Especificacion::where('clave', 'Marca')
-            ->whereHas('producto', function($q) use ($categoria) {
-                $q->where('estado', 1)
-                ->where(function($q2) use ($categoria) {
-                    if ($categoria->categoria_padre_id === null) {
-                        $q2->where('categoria_id', $categoria->id)
-                            ->orWhereIn('categoria_id', $categoria->subcategorias->pluck('id'));
-                    } else {
-                        $q2->where('categoria_id', $categoria->id);
-                    }
-                });
-            })
+        // Obtener opciones de filtro específicas para la categoría actual
+        $marcas = Producto::where('estado', 1)
             ->distinct()
-            ->pluck('valor');
+            ->pluck('marca');
 
         $tiposTrabajo = Especificacion::where('clave', 'Tipo de Trabajo')
             ->whereHas('producto', function($q) use ($categoria) {
@@ -278,9 +404,9 @@ public function show($id)
             }
         }
 
-        return view('productosprincipal.productosVentas', compact('productos', 'categoria', 'marcas', 'precios', 'tiposTrabajo', 'otrasEspecificaciones', 'filters'));
+        return view('productosprincipal.productosVentas', compact('productos', 'categoria', 'marcas', 'precios', 'tiposTrabajo', 'otrasEspecificaciones'));
     }
-    
+        
     // Método para buscar productos
     public function buscarProductos(Request $request)
     {

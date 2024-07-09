@@ -342,7 +342,7 @@
                 <div class="offcanvas-menu-body">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a href="{{ route('welcome') }}" class="nav-link">Inicio</a></li>
-                        
+                        <li class="nav-item"><a href="{{ url('productosVentas') }}" class="nav-link">Productos</a></li>
                         <li class="nav-item"><a href="{{ url('contacto') }}" class="nav-link">Contacto</a></li>
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas</a>

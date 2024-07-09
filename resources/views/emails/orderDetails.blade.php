@@ -2,13 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Full Bigotes | La Mejor Tienda de Accesorios para tus Mascotas en Chiloé</title>
-    
-    <!-- Favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/gallery/iconof.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/gallery/iconof.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/gallery/iconof.png') }}">
-
+    <title>Detalles de tu Orden</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,23 +18,18 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            text-align: left;
         }
         .logo {
-            display: block;
-            margin: 0 auto 20px;
             text-align: center;
+            margin-bottom: 20px;
         }
         .logo img {
             width: 100px;
             height: auto;
         }
-        h1 {
+        h1, h2 {
             color: #333;
             text-align: center;
-        }
-        h2, h3 {
-            color: #333;
         }
         ul {
             list-style-type: none;
@@ -51,66 +40,37 @@
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .alert-success {
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-            color: #3c763d;
-        }
-        .alert-danger {
-            background-color: #f2dede;
-            border-color: #ebccd1;
-            color: #a94442;
-        }
-        .alert-warning {
-            background-color: #fcf8e3;
-            border-color: #faebcc;
-            color: #8a6d3b;
-        }
-        footer {
-            text-align: center;
-            font-size: 0.8em;
-            color: #777;
-            margin-top: 20px;
-        }
         .section-title {
             margin-top: 20px;
             font-size: 1.2em;
             border-bottom: 2px solid #ddd;
             padding-bottom: 5px;
         }
-        .section-content {
-            margin: 10px 0;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .table th {
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
-            <img src="{{ asset('assets/img/gallery/iconof.png') }}" alt="FullBigotes Logo">
-        </div>
-        <h1>Resultado de la Transacción</h1>
-        <div class="alert {{ $order->status == 'completed' ? 'alert-success' : ($order->status == 'rejected' ? 'alert-danger' : 'alert-warning') }}">
-            <h2>{{ $order->status == 'completed' ? '¡Pago aprobado!' : ($order->status == 'rejected' ? 'Pago rechazado' : 'Pago pendiente') }}</h2>
-            <p>Gracias por tu compra. Aquí están los detalles de tu orden:</p>
-        </div>
-        @php
-            $totalConDescuento = 0;
-            foreach ($order->productos as $producto) {
-                $descuento = $producto->pivot->descuento ?? 0;
-                $precioConDescuento = $producto->pivot->precio - $descuento;
-                $totalConDescuento += $precioConDescuento * $producto->pivot->cantidad;
-            }
-        @endphp
+            <img src="{{ asset('images/logoelmartillo.png') }}" alt="El Martillo Logo">
+                </div>
+        <h1>Detalles de tu Orden</h1>
+        <p>Gracias por tu compra. Aquí están los detalles de tu orden:</p>
+
         <div class="section-content">
             <ul>
-                <li><strong>ID de Orden:</strong> {{ $order->reference }}</li>
+                <li><strong>ID de Orden:</strong> {{ $order->id }}</li>
                 <li><strong>Total (con descuentos):</strong> ${{ number_format($totalConDescuento, 0) }}</li>
                 <li><strong>Estado:</strong> {{ $order->status == 'completed' ? 'Completa' : ($order->status == 'rejected' ? 'Rechazada' : 'Pendiente') }}</li>
             </ul>
@@ -118,44 +78,55 @@
         <div class="section-title">Detalles del Comprador:</div>
         <div class="section-content">
             <ul>
-                <li><strong>Nombre:</strong> {{ $order->detallesOrden->first_name }} {{ $order->detallesOrden->last_name }}</li>
-                <li><strong>Email:</strong> {{ $order->detallesOrden->email }}</li>
-                <li><strong>Teléfono:</strong> {{ $order->detallesOrden->phone ?? 'N/A' }}</li>
+                <li><strong>Nombre:</strong> {{ $order->detalleOrden->first_name }} {{ $order->detalleOrden->last_name }}</li>
+                <li><strong>Email:</strong> {{ $order->detalleOrden->email }}</li>
+                <li><strong>Teléfono:</strong> {{ $order->detalleOrden->phone ?? 'N/A' }}</li>
             </ul>
         </div>
         <div class="section-title">Detalles del Pedido:</div>
         <div class="section-content">
             <ul>
-                @if($order->detallesOrden->tipo_retiro == 'domicilio')
-                    <li><strong>Tipo de Retiro:</strong> Domicilio</li>
-                    <li><strong>País:</strong> {{ $order->detallesOrden->pais ?? 'vacío' }}</li>
-                    <li><strong>Dirección:</strong> {{ $order->detallesOrden->direccion ?? 'vacío' }}</li>
-                    <li><strong>Casa/Apartamento:</strong> {{ $order->detallesOrden->casa_apartamento ?? 'vacío' }}</li>
-                    <li><strong>Comuna:</strong> {{ $order->detallesOrden->comuna ?? 'vacío' }}</li>
-                    <li><strong>Región:</strong> {{ $order->detallesOrden->region ?? 'vacío' }}</li>
-                @elseif($order->detallesOrden->tipo_retiro == 'retiro')
-                    <li><strong>Tipo de Retiro:</strong> Retiro</li>
-                    <li><strong>Sucursal de Retiro:</strong> {{ $order->detallesOrden->sucursal_retiro ?? 'vacío' }}</li>
-                    <li><strong>Nombre del Receptor:</strong> {{ $order->detallesOrden->nombre_receptor ?? 'vacío' }}</li>
-                    <li><strong>RUT del Receptor:</strong> {{ $order->detallesOrden->rut_receptor ?? 'vacío' }}</li>
+                @if($order->detalleOrden->tipo_retiro == 'envio')
+                    <li><strong>Tipo de Retiro:</strong> Envío</li>
+                    <li><strong>Dirección:</strong> {{ $order->detalleOrden->direccion ?? 'N/A' }}</li>
+                    <li><strong>Ciudad:</strong> {{ $order->detalleOrden->ciudad ?? 'N/A' }}</li>
+                @else
+                    <li><strong>Tipo de Retiro:</strong> Retiro en Sucursal</li>
                 @endif
             </ul>
         </div>
         <div class="section-title">Productos:</div>
         <div class="section-content">
-            <ul>
-                @foreach($order->productos as $producto)
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Descuento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($order->productos as $producto)
                     @php
                         $precioFinal = $producto->pivot->precio - ($producto->pivot->descuento ?? 0);
                     @endphp
-                    <li>{{ $producto->pivot->cantidad }} x {{ $producto->nombre }} - ${{ number_format($precioFinal, 0) }}</li>
-                @endforeach
+                    <tr>
+                        <td>{{ $producto->nombre }}</td>
+                        <td>{{ $producto->pivot->cantidad }}</td>
+                        <td>${{ number_format($precioFinal * $producto->pivot->cantidad, 0, ',', '.') }}</td>
+                        <td>${{ number_format($producto->pivot->descuento * $producto->pivot->cantidad, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="section-title">Total Compra</div>
+        <div class="section-content">
+            <ul>
+                <li><strong>Total:</strong> ${{ number_format($order->total, 0, ',', '.') }}</li>
             </ul>
         </div>
     </div>
-    <footer>
-        <p>Gracias por elegirnos. ¡Esperamos verte pronto!</p>
-        <p>Atentamente,<br>El equipo de FullBigotes.cl</p>
-    </footer>
 </body>
 </html>

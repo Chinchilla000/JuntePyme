@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Ordenes;
 
-use App\Http\Controllers\Controller; // Asegúrate de extender Controller
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Orden;
 use App\Models\ProblemaOrden;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderReadyForPickupMail;
 
 class OrdenController extends Controller
 {
@@ -179,6 +181,25 @@ class OrdenController extends Controller
         $orden->status = $request->estado;
         $orden->save();
 
+        // Enviar correo cuando el estado sea "ready_for_pickup" o "completed"
+        if ($orden->status == 'ready_for_pickup' || $orden->status == 'completed') {
+            Mail::to($orden->detalleOrden->email)->send(new OrderReadyForPickupMail($orden));
+        }
+
         return redirect()->route('ordenes.show', $orden->id)->with('success', 'Estado de la orden actualizado exitosamente.');
     }
+    public function sendReadyForPickupEmail($id)
+    {
+        try {
+            $orden = Orden::findOrFail($id);
+            Mail::to($orden->detalleOrden->email)->send(new OrderReadyForPickupMail($orden));
+    
+            return redirect()->route('ordenes.show', $id)->with('success', 'Correo enviado exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error sending ready for pickup email:', ['error' => $e->getMessage()]);
+            return redirect()->route('ordenes.show', $id)->with('error', 'Ocurrió un error al enviar el correo.');
+        }
+    }
+    
+
 }

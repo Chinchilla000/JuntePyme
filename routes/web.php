@@ -36,7 +36,8 @@ Route::get('/send-mail', function () {
     Mail::to($order->user->email)->send(new OrderDetailsMail($order));
     return 'Correo enviado!';
 });
-
+Route::post('ventas/ordenes/{id}/send-ready-for-pickup-email', [App\Http\Controllers\Ordenes\OrdenController::class, 'sendReadyForPickupEmail'])->name('ordenes.sendReadyForPickupEmail');
+Route::post('/ordenes/{order}/enviar-correo-listo-para-retiro', [OrdenController::class, 'enviarCorreoListoParaRetiro']);
 Route::post('/payment/notification', [PaymentController::class, 'handlePaymentNotification'])->name('payment.notification');
 // Ruta para manejar el resultado del pago
 Route::get('/payment/result/{order_id}', [CheckoutController::class, 'paymentResult'])->name('payment.result');
@@ -44,6 +45,7 @@ Route::get('/payment/result/{order_id}', [CheckoutController::class, 'paymentRes
 Route::get('/order/confirmation/{orderId}', [PaymentController::class, 'orderConfirmation'])->name('order.confirmation');
 Route::get('/order/failed/{orderId}', [PaymentController::class, 'orderFailed'])->name('order.failed');
 Route::get('/order/pending/{orderId}', [PaymentController::class, 'orderPending'])->name('order.pending');
+
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
@@ -58,7 +60,7 @@ Route::post('/carrito/eliminar-producto', [CarritoController::class, 'eliminarPr
 
 Route::get('/descuentosProductos', [ProductosVentasController::class, 'index'])->name('descuentosProductos');
 Route::get('/buscar-productos-por-categoria/{categoriaId}', [ProductosVentasController::class, 'buscarProductosPorCategoria'])->name('buscar.productos.categoria');
-
+Route::get('/productosVentas/buscar/{categoria}', [ProductosVentasController::class, 'buscar'])->name('productosVentas.buscar');
 //Codigo Promocional
 
 Route::post('/aplicar-codigo-promocional', [DescuentosController::class, 'aplicarCodigoPromocional'])->name('aplicar-codigo-promocional');
