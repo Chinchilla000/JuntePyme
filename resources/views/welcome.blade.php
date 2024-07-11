@@ -1,4 +1,9 @@
 @include('layoutsprincipal.header')
+<!-- Incluir jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Incluir Owl Carousel JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
 
 
@@ -56,78 +61,26 @@
     <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
         <span class="bg-secondary pr-3">Productos con Descuento</span>
     </h2>
-    <div id="carouselProductosDescuento" class="carousel slide d-md-none" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            @foreach($productos as $index => $producto)
-                @if ($producto->descuento)
-                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                        <div class="col-12 mb-4">
-                            <div class="product-item bg-light h-100 p-3 position-relative">
-                                <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                                    <a href="{{ url('/productodetalle', $producto->id) }}">
-                                        <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
-                                    </a>
-                                    <div class="position-absolute top-0 start-0 m-2">
-                                        <span class="badge bg-danger text-white">Con Descuento</span>
-                                    </div>
-                                </div>
-                                <div class="text-center py-4">
-                                    <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
-                                    <div class="d-flex align-items-center justify-content-center mt-2">
-                                        <h5 class="text-danger">${{ number_format($producto->precio_final, 0) }}</h5>
-                                        <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
-                                    </div>
-                                    <div class="d-flex justify-content-center mt-2">
-                                        <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
-                                            <i class="fa fa-search"></i> Ver Detalle
-                                        </a>
-                                        <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
-                                            <i class="fa fa-shopping-cart"></i> Añadir al Carrito
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductosDescuento" data-bs-slide="prev" style="width: 10%;">
-            <span class="carousel-control-prev-icon" aria-hidden="true" style="display:none;"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselProductosDescuento" data-bs-slide="next" style="width: 10%;">
-            <span class="carousel-control-next-icon" aria-hidden="true" style="display:none;"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-    <div class="row px-xl-5 d-none d-md-flex">
-        @foreach($productos as $producto)
+    <div class="owl-carousel vendor-carousel">
+        @foreach ($productos as $producto)
             @if ($producto->descuento)
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="product-item bg-light h-100 p-3 position-relative">
-                        <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                            <a href="{{ url('/productodetalle', $producto->id) }}">
-                                <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
-                            </a>
-                            <div class="position-absolute top-0 start-0 m-2">
-                                <span class="badge bg-danger text-white">Con Descuento</span>
-                            </div>
+                <div class="bg-light p-4 text-center product-card">
+                    <img class="img-fluid" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" alt="{{ $producto->nombre }}">
+                    <div class="py-2">
+                        <h5 class="h6">{{ $producto->nombre }}</h5>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <h6 class="text-danger m-0">${{ number_format($producto->precio_final, 0) }}</h6>
+                            <h6 class="text-muted ml-2 m-0">
+                                <del>${{ number_format($producto->precio_venta_bruto, 0) }}</del>
+                            </h6>
                         </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5 class="text-danger">${{ number_format($producto->precio_final, 0) }}</h5>
-                                <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
-                            </div>
-                            <div class="d-flex justify-content-center mt-2">
-                                <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
-                                    <i class="fa fa-search"></i> Ver Detalle
-                                </a>
-                                <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
-                                    <i class="fa fa-shopping-cart"></i> Añadir al Carrito
-                                </a>
-                            </div>
+                        <div class="d-flex justify-content-center mt-2">
+                            <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
+                                <i class="fa fa-search"></i>
+                            </a>
+                            <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -135,68 +88,97 @@
         @endforeach
     </div>
 </div>
+
 <!-- Productos Termino -->
 
 <style>
-    .btn-danger, .btn-danger:hover, .btn-danger:active, .btn-danger:focus, .btn-danger:visited {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
+   .product-card {
+    width: 100%;
+    max-width: 250px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    padding: 20px 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.product-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.product-card h5, .product-card h6 {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.btn-danger, .btn-danger:hover, .btn-danger:active, .btn-danger:focus, .btn-danger:visited {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.vendor-carousel .owl-nav button.owl-prev,
+.vendor-carousel .owl-nav button.owl-next {
+    position: absolute;
+    top: 35%;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    border: none;
+    font-size: 16px;
+}
+
+@media (max-width: 576px) {
+    .product-card {
+        max-width: 100%;
+        height: 340px;
     }
 
-    .btn-ver-detalle, .btn-agregar-carrito {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
+    .product-card img {
+        height: 170px;
     }
+}
 
-    .btn-ver-detalle:hover, .btn-agregar-carrito:hover {
-        background-color: #c82333 !important;
-        border-color: #bd2130 !important;
-        color: #fff !important;
-    }
-
-    .btn-ver-detalle i, .btn-agregar-carrito i {
-        color: #fff !important;
-    }
-
-    .btn-ver-detalle:hover i, .btn-agregar-carrito:hover i {
-        color: #fff !important;
-    }
-
-    .carousel-control-prev, .carousel-control-next {
-        width: 10%;
-        background: transparent;
-        border: none;
-    }
-
-    .carousel-control-prev:hover, .carousel-control-next:hover,
-    .carousel-control-prev:focus, .carousel-control-next:focus {
-        background: transparent;
-        border: none;
-    }
-
-    .carousel-control-prev::before, .carousel-control-next::before {
-        content: '';
-    }
-
-    .carousel-inner .carousel-item {
-        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
-    }
-
-    @media (max-width: 767.98px) {
-        .carousel-item {
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out;
-        }
-        .carousel-item.active {
-            opacity: 1;
-        }
-    }
 </style>
 
+<script>
+    $(document).ready(function() {
+        $(".vendor-carousel").owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                600: {
+                    items: 2
+                },
+                1000: {
+                    items: 4
+                }
+            }
+        });
+    });
+</script>
 
-<!-- Featured Start -->
+
+<!-- Que hacemos -->
 <div class="container-fluid pt-5">
     <div class="row px-xl-5 pb-3">
         <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
@@ -225,8 +207,17 @@
         </div>
     </div>
 </div>
-<!-- Featured End -->
-
+<!-- Que hacemos -->
+<style>
+    @media (max-width: 768px) {
+        .d-flex {
+            padding: 15px !important;
+        }
+        .d-flex h1 {
+            font-size: 1.5em !important;
+        }
+    }
+</style>
 
 
 <!-- Categorias Inicio -->
@@ -340,14 +331,14 @@
 <div class="container-fluid pt-5 pb-3">
     <div class="row px-xl-5">
         @foreach($informacionesI as $informacion)
-            <div class="col-md-6">
-                <div class="product-offer mb-30" style="height: 300px;">
-                    <img class="img-fluid" src="{{ asset( $informacion->imagen) }}" alt="{{ $informacion->titulo }}">
+            <div class="col-md-6 col-sm-12">
+                <div class="product-offer mb-30" style="height: 200px;">
+                    <img class="img-fluid w-100" src="{{ asset($informacion->imagen) }}" alt="{{ $informacion->titulo }}" style="height: 100%;">
                     <div class="offer-text">
                         <h6 class="text-white text-uppercase">{{ $informacion->titulo }}</h6>
-                        <h3 class="text-white mb-3">{{ $informacion->descripcion }}</h3>
+                        <h3 class="text-white mb-3">{{ \Illuminate\Support\Str::limit($informacion->descripcion, 50) }}</h3>
                         @if($informacion->url)
-                            <a href="{{ $informacion->url }}" class="btn btn-primary">Shop Now</a>
+                            <a href="{{ $informacion->url }}" class="btn btn-primary btn-sm">Shop Now</a>
                         @endif
                     </div>
                 </div>
@@ -357,130 +348,212 @@
 </div>
 <!-- Informativo Termino -->
 
-<!-- Productos Inicio -->
-<div class="container-fluid pt-5 pb-3">
-    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
-        <span class="bg-secondary pr-3">Productos</span>
-    </h2>
-    <div id="carouselProductos" class="carousel slide d-md-none" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            @foreach($productos as $index => $producto)
-                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                    <div class="col-12 mb-4">
-                        <div class="product-item bg-light h-100">
-                            <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                                <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
-                            </div>
-                            <div class="text-center py-4">
-                                <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
-                                <div class="d-flex align-items-center justify-content-center mt-2">
-                                    <h5 class="text-danger">${{ number_format($producto->precio_final, 0) }}</h5>
-                                    @if ($producto->descuento)
-                                        <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
-                                    @endif
-                                </div>
-                                <div class="d-flex justify-content-center mt-2">
-                                    <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
-                                        <i class="fa fa-search"></i> Ver Detalle
-                                    </a>
-                                    <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
-                                        <i class="fa fa-shopping-cart"></i> Añadir al Carrito
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductos" data-bs-slide="prev" style="width: 10%;">
-            <span class="carousel-control-prev-icon" aria-hidden="true" style="display:none;"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselProductos" data-bs-slide="next" style="width: 10%;">
-            <span class="carousel-control-next-icon" aria-hidden="true" style="display:none;"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
-    <div class="row px-xl-5 d-none d-md-flex">
-        @foreach($productos as $producto)
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="product-item bg-light h-100">
-                    <div class="product-img position-relative overflow-hidden" style="height: 250px;">
-                        <img class="img-fluid w-100 h-100" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" style="object-fit: contain; object-position: center;" alt="{{ $producto->nombre }}">
-                    </div>
-                    <div class="text-center py-4">
-                        <a class="h6 text-decoration-none text-truncate" href="{{ url('/productodetalle', $producto->id) }}">{{ $producto->nombre }}</a>
-                        <div class="d-flex align-items-center justify-content-center mt-2">
-                            <h5 class="text-danger">${{ number_format($producto->precio_final, 0) }}</h5>
-                            @if ($producto->descuento)
-                                <h6 class="text-muted ml-2"><del>${{ number_format($producto->precio_venta_bruto, 0) }}</del></h6>
-                            @endif
-                        </div>
-                        <div class="d-flex justify-content-center mt-2">
-                            <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
-                                <i class="fa fa-search"></i> Ver Detalle
-                            </a>
-                            <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
-                                <i class="fa fa-shopping-cart"></i> Añadir al Carrito
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    </div>
-</div>
-<!-- Productos Termino -->
-
 <style>
-    .btn-danger, .btn-danger:hover, .btn-danger:active, .btn-danger:focus {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
+    .product-offer {
+        position: relative;
+        overflow: hidden;
+    }
+    .product-offer img {
+        object-fit: cover;
+        height: 100%;
+    }
+    .offer-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+    .offer-text h6, .offer-text h3 {
+        margin: 0;
+    }
+    .offer-text .btn {
+        margin-top: 10px;
     }
 
-    .btn-ver-detalle, .btn-agregar-carrito {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-        color: #fff !important;
-    }
-
-    .btn-ver-detalle:hover, .btn-agregar-carrito:hover {
-        background-color: #c82333 !important;
-        border-color: #bd2130 !important;
-        color: #fff !important;
-    }
-
-    .carousel-control-prev, .carousel-control-next {
-        width: 10%;
-        background: transparent;
-        border: none;
-    }
-
-    .carousel-control-prev:hover, .carousel-control-next:hover,
-    .carousel-control-prev:focus, .carousel-control-next:focus {
-        background: transparent;
-        border: none;
-    }
-
-    .carousel-control-prev::before, .carousel-control-next::before {
-        content: '';
-    }
-
-    .carousel-inner .carousel-item {
-        transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
-    }
-
-    @media (max-width: 767.98px) {
-        .carousel-item {
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out;
+    @media (max-width: 767px) {
+        .product-offer {
+            height: 150px;
         }
-        .carousel-item.active {
-            opacity: 1;
+        .offer-text h6 {
+            font-size: 0.9rem;
+        }
+        .offer-text h3 {
+            font-size: 1.1rem;
+        }
+        .offer-text .btn {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
         }
     }
 </style>
 
+<!-- Productos Inicio -->
+<!-- Carrusel Inicio -->
+<div class="container-fluid py-5">
+    <div class="row px-xl-5">
+        <div class="col">
+            <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+                <span class="bg-secondary pr-3">Todos los productos</span>
+            </h2>
+            <div class="owl-carousel vendor-carousel">
+    @foreach($productos as $producto)
+        <div class="bg-light p-4 text-center product-card">
+            <img class="img-fluid" src="{{ asset('storage/imagenes_productos/' . $producto->imagen_producto) }}" alt="{{ $producto->nombre }}">
+            <div class="py-2">
+                <h5 class="h6">{{ $producto->nombre }}</h5>
+                <div class="d-flex justify-content-center align-items-center">
+                    <h6 class="text-danger m-0">${{ number_format($producto->precio_final, 0) }}</h6>
+                    @if ($producto->descuento)
+                        <h6 class="text-muted ml-2 m-0">
+                            <del>${{ number_format($producto->precio_venta_bruto, 0) }}</del>
+                        </h6>
+                    @endif
+                </div>
+                <div class="d-flex justify-content-center mt-2">
+                    <a class="btn btn-danger btn-sm mx-1 btn-ver-detalle" href="{{ route('productosVentas.show', $producto->id) }}">
+                        <i class="fa fa-search"></i>
+                    </a>
+                    <a class="btn btn-danger btn-sm mx-1 btn-agregar-carrito" href="#" data-producto-id="{{ $producto->id }}">
+                        <i class="fa fa-shopping-cart"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+
+        </div>
+    </div>
+</div>
+<!-- Carrusel Final -->
+
+<script>
+    $(document).ready(function(){
+        $(".vendor-carousel").owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                600: {
+                    items: 2
+                },
+                1000: {
+                    items: 4
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+  .product-card {
+    width: 100%;
+    max-width: 250px; /* Ajusta el tamaño según tu diseño */
+    height: 320px; /* Altura fija para todos los cards */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    padding: 20px 10px; /* Añade más espacio en la parte inferior */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden; /* Asegura que nada se salga del card */
+}
+
+.product-card img {
+    width: 100%;
+    height: 150px; /* Altura fija para las imágenes */
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.product-card h5 {
+    white-space: normal; /* Permite el salto de línea */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.product-card .btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.vendor-carousel .owl-nav button.owl-prev,
+.vendor-carousel .owl-nav button.owl-next {
+    position: absolute;
+    top: 35%;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    border: none;
+    font-size: 16px;
+}
+
+.vendor-carousel .owl-nav button.owl-prev {
+    left: -15px;
+}
+
+.vendor-carousel .owl-nav button.owl-next {
+    right: -15px;
+}
+
+.btn-danger, .btn-danger:hover, .btn-danger:active, .btn-danger:focus {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.btn-ver-detalle, .btn-agregar-carrito {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+.btn-ver-detalle:hover, .btn-agregar-carrito:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+    color: #fff !important;
+}
+
+@media (max-width: 576px) {
+    .product-card {
+        max-width: 100%;
+        height: 340px; /* Altura fija para vista móvil también */
+    }
+
+    .product-card img {
+        height: 170px; /* Altura fija para las imágenes en móvil */
+    }
+
+    .vendor-carousel .owl-nav button.owl-prev,
+    .vendor-carousel .owl-nav button.owl-next {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+}
+
+
+</style>
 @extends('layoutsprincipal.footer')

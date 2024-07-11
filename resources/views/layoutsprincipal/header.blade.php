@@ -271,12 +271,13 @@
                                     class="nav-item nav-link active text-white">Inicio</a>
                                 <a href="{{ url('productosVentas') }}"
                                     class="nav-item nav-link text-white">Productos</a>
-                     
+
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle text-white"
                                         data-toggle="dropdown">Páginas <i class="fa fa-angle-down mt-1"></i></a>
                                     <div class="dropdown-menu bg-light rounded-0 border-0 m-0">
-                                        <a href="{{ url('carrito') }}" class="dropdown-item text-dark">Carrito de Compras</a>
+                                        <a href="{{ url('carrito') }}" class="dropdown-item text-dark">Carrito de
+                                            Compras</a>
                                         <a href="{{ url('checkout') }}" class="dropdown-item text-dark">Checkout</a>
                                     </div>
                                 </div>
@@ -326,215 +327,283 @@
         <!-- Navbar End -->
 
         <!-- Mobile Sidebar Menu -->
-        <div class="offcanvas-backdrop" id="offcanvas-backdrop"></div>
-        <div class="offcanvas-menu" id="offcanvas-menu">
-            <button type="button" class="btn close-btn" data-dismiss="offcanvas-menu">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <div class="offcanvas-menu-content">
-                <div class="offcanvas-menu-header">
-                    <a href="{{ route('welcome') }}">
-                        <img src="{{ asset('img/logoelmartillo.png') }}" alt="Ferretería El Martillo" style="max-width: 100px;">
-                    </a>
-                    <h5 class="mt-2">Ferretería El Martillo</h5>
-
-                </div>
-                <div class="offcanvas-menu-body">
-                    <ul class="navbar-nav">
-                        <li class="nav-item"><a href="{{ route('welcome') }}" class="nav-link">Inicio</a></li>
-                        <li class="nav-item"><a href="{{ url('productosVentas') }}" class="nav-link">Productos</a></li>
-                        <li class="nav-item"><a href="{{ url('contacto') }}" class="nav-link">Contacto</a></li>
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas</a>
-                            <ul class="dropdown-menu">
-                                <li><a href="{{ url('carrito') }}" class="dropdown-item">Carrito de Compras</a></li>
-                                <li><a href="{{ url('checkout') }}" class="dropdown-item">Checkout</a></li>
-                            </ul>
-                        </li>
-                      
+<div class="offcanvas-backdrop" id="offcanvas-backdrop"></div>
+<div class="offcanvas-menu" id="offcanvas-menu">
+    <button type="button" class="btn close-btn" data-dismiss="offcanvas-menu">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="offcanvas-menu-content">
+        <div class="offcanvas-menu-header">
+            <a href="{{ route('welcome') }}">
+                <img src="{{ asset('img/logoelmartillo.png') }}" alt="Ferretería El Martillo" style="max-width: 100px;">
+            </a>
+            <h5 class="mt-2">Ferretería El Martillo</h5>
+        </div>
+        <div class="offcanvas-menu-body">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a href="{{ route('welcome') }}" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="{{ url('contacto') }}" class="nav-link">Contacto</a></li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Páginas</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url('carrito') }}" class="dropdown-item">Carrito de Compras</a></li>
+                        <li><a href="{{ url('checkout') }}" class="dropdown-item">Checkout</a></li>
                     </ul>
-                    <!-- Carrito de compras -->
-                    <div class="offcanvas-menu-body mt-4">
-                        <h5>Carrito de Compras</h5>
-                        <ul class="navbar-nav">
-                            @foreach ($carritoProductos as $item)
-                                <li class="nav-item d-flex align-items-center mb-2">
-                                    <img src="{{ asset('storage/imagenes_productos/' . $item->producto->imagen_producto) }}"
-                                        alt="{{ $item->producto->nombre }}" class="cart-item-img">
-                                    <div class="d-flex flex-column ml-2">
-                                        <span>{{ $item->producto->nombre }}</span>
-                                        <small>Cantidad: {{ $item->cantidad }}</small>
-                                    </div>
-                                </li>
+                </li>
+                <!-- Cargando categorías con subcategorías -->
+                @foreach ($categoriasPadre as $categoriaPadre)
+                    <li class="nav-item">
+                        <a href="#categoria-{{ $categoriaPadre->id }}" class="nav-link dropdown-toggle" data-toggle="collapse" aria-expanded="false">{{ $categoriaPadre->nombre }}</a>
+                        <ul class="collapse" id="categoria-{{ $categoriaPadre->id }}">
+                            <li><a href="{{ route('productosVentas.categoria', $categoriaPadre->id) }}" class="dropdown-item text-danger">{{ $categoriaPadre->nombre }}</a></li>
+                            @foreach($categoriaPadre->subcategorias as $subcategoria)
+                                <li><a href="{{ route('productosVentas.categoria', $subcategoria->id) }}" class="dropdown-item">{{ $subcategoria->nombre }}</a></li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('carrito.index') }}" class="btn btn-primary btn-block mt-4">Ver Carrito</a>
-                    </div>
-                    <div class="sidebar-extra-info mt-4">
-                        <h6 class="text-uppercase">Dirección</h6>
-                        <p><i class="fa fa-map-marker-alt text-danger"></i> Esquina freire poniente 415, Dalcahue,
-                            Chiloé</p>
-                        <a href="https://www.google.com/maps/place/42%C2%B022'46.4%22S+73%C2%B039'10.8%22W/@-42.3795512,-73.6555699,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-42.3795512!4d-73.652995?hl=es&entry=ttu"
-                            class="text-dark" target="_blank">Ver en Google Maps</a>
-                        <h6 class="text-uppercase mt-3">Horario</h6>
-                        <p><i class="fa fa-clock text-danger"></i> Lunes - Viernes: 8:30 - 12:30 (colación) 14:00 -
-                            18:30 hrs</p>
-                        <div class="d-flex flex-column align-items-center mt-3">
-                            <h6 class="text-uppercase">Atención al Cliente</h6>
-                            <a href="https://wa.me/56988696580" class="btn btn-success mb-2 rounded-pill shadow"
-                                target="_blank">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                        </div>
-                    </div>
+                    </li>
+                @endforeach
+            </ul>
+            <!-- Carrito de compras -->
+            <div class="offcanvas-menu-body mt-4">
+                <h5>Carrito de Compras</h5>
+                <ul class="navbar-nav">
+                    @foreach ($carritoProductos as $item)
+                        <li class="nav-item d-flex align-items-center mb-2">
+                            <img src="{{ asset('storage/imagenes_productos/' . $item->producto->imagen_producto) }}" alt="{{ $item->producto->nombre }}" class="cart-item-img">
+                            <div class="d-flex flex-column ml-2">
+                                <span>{{ $item->producto->nombre }}</span>
+                                <small>Cantidad: {{ $item->cantidad }}</small>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+                <a href="{{ route('carrito.index') }}" class="btn btn-primary btn-block mt-4">Ver Carrito</a>
+            </div>
+            <div class="sidebar-extra-info mt-4">
+                <h6 class="text-uppercase">Dirección</h6>
+                <p><i class="fa fa-map-marker-alt text-danger"></i> Esquina freire poniente 415, Dalcahue, Chiloé</p>
+                <a href="https://www.google.com/maps/place/42%C2%B022'46.4%22S+73%C2%B039'10.8%22W/@-42.3795512,-73.6555699,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-42.3795512!4d-73.652995?hl=es&entry=ttu" class="text-dark" target="_blank">Ver en Google Maps</a>
+                <h6 class="text-uppercase mt-3">Horario</h6>
+                <p><i class="fa fa-clock text-danger"></i> Lunes - Viernes: 8:30 - 12:30 (colación) 14:00 - 18:30 hrs</p>
+                <div class="d-flex flex-column align-items-center mt-3">
+                    <h6 class="text-uppercase">Atención al Cliente</h6>
+                    <a href="https://wa.me/56988696580" class="btn btn-success mb-2 rounded-pill shadow" target="_blank">
+                        <i class="fab fa-whatsapp"></i> WhatsApp
+                    </a>
                 </div>
             </div>
         </div>
-        <!-- Mobile Sidebar Menu End -->
+    </div>
+</div>
+<!-- Mobile Sidebar Menu End -->
 
-        <style>
-            .custom-text {
-                font-size: 1.2rem;
-            }
+<style>
+    .custom-text {
+        font-size: 1.2rem;
+    }
 
-            @media (min-width: 992px) {
-                .custom-text {
-                    font-size: 1.5rem;
+    @media (min-width: 992px) {
+        .custom-text {
+            font-size: 1.5rem;
+        }
+    }
+
+    .scrollable-menu {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        padding-bottom: 10px;
+    }
+
+    .offcanvas-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1050;
+        overflow-y: auto;
+    }
+
+    .offcanvas-menu.open {
+        transform: translateX(0);
+    }
+
+    .offcanvas-menu .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        cursor: pointer;
+    }
+
+    .offcanvas-menu .offcanvas-menu-content {
+        padding: 20px;
+    }
+
+    .offcanvas-menu .offcanvas-menu-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .offcanvas-menu .offcanvas-menu-body {
+        overflow-y: auto;
+    }
+
+    .offcanvas-menu .navbar-nav {
+        list-style: none;
+        padding: 0;
+    }
+
+    .offcanvas-menu .navbar-nav .nav-item {
+        margin: 0;
+    }
+
+    .offcanvas-menu .navbar-nav .nav-link {
+        display: block;
+        padding: 10px 15px;
+        color: #000;
+        text-decoration: none;
+    }
+
+    .offcanvas-menu .navbar-nav .dropdown-menu {
+        background: #f8f9fa;
+        border: none;
+        box-shadow: none;
+    }
+
+    .offcanvas-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+    }
+
+    .offcanvas-backdrop.show {
+        display: block;
+    }
+
+    .sidebar-extra-info {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .sidebar-extra-info h6 {
+        margin-top: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .sidebar-extra-info p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .sidebar-extra-info a {
+        text-decoration: none;
+    }
+
+    body.no-scroll {
+        overflow: hidden;
+    }
+
+    @media (max-width: 576px) {
+        .btn-custom {
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .cart-button {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -1px;
+    }
+
+    .offcanvas-menu-body {
+        background-color: #f5f5f5;
+    }
+
+    .dropdown-item.text-danger {
+        color: red !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.navbar-toggler').addEventListener('click', function() {
+            document.getElementById('offcanvas-menu').classList.add('open');
+            document.getElementById('offcanvas-backdrop').classList.add('show');
+            document.body.classList.add('no-scroll');
+        });
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            document.getElementById('offcanvas-menu').classList.remove('open');
+            document.getElementById('offcanvas-backdrop').classList.remove('show');
+            document.body.classList.remove('no-scroll');
+        });
+        document.getElementById('offcanvas-backdrop').addEventListener('click', function() {
+            document.getElementById('offcanvas-menu').classList.remove('open');
+            document.getElementById('offcanvas-backdrop').classList.remove('show');
+            document.body.classList.remove('no-scroll');
+        });
+
+        document.querySelectorAll('.dropdown-toggle').forEach(function(element) {
+            element.addEventListener('click', function(event) {
+                event.preventDefault();
+                const target = document.querySelector(element.getAttribute('data-target'));
+                if (target) {
+                    target.classList.toggle('show');
                 }
+            });
+        });
+
+        document.querySelector('.back-to-top').addEventListener('click', function(event) {
+            if (window.innerWidth <= 576) {
+                event.preventDefault();
+                document.getElementById('offcanvas-menu').classList.add('open');
+                document.getElementById('offcanvas-backdrop').classList.add('show');
+                document.body.classList.add('no-scroll');
             }
+        });
 
-            .scrollable-menu {
-                max-height: calc(100vh - 100px);
-                /* Ajusta la altura máxima */
-                overflow-y: auto;
-                padding-bottom: 10px;
+        // Cambiar ícono de "Back to Top" a menú en vista móvil
+        function updateBackToTopIcon() {
+            const icon = document.getElementById('back-to-top-icon');
+            if (window.innerWidth <= 576) {
+                icon.classList.remove('fa-angle-double-up');
+                icon.classList.add('fa-bars');
+            } else {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-angle-double-up');
             }
+        }
 
-            .offcanvas-menu {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 300px;
-                height: 100%;
-                background-color: #fff;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 1050;
-                overflow-y: auto;
-                /* Permite el desplazamiento dentro del sidebar */
-            }
-
-            .offcanvas-menu.open {
-                transform: translateX(0);
-            }
-
-            .offcanvas-menu .close-btn {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                font-size: 30px;
-                cursor: pointer;
-            }
-
-            .offcanvas-menu .offcanvas-menu-content {
-                padding: 20px;
-            }
-
-            .offcanvas-menu .offcanvas-menu-header {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
-            .offcanvas-menu .offcanvas-menu-body {
-                overflow-y: auto;
-            }
-
-            .offcanvas-menu .navbar-nav {
-                list-style: none;
-                padding: 0;
-            }
-
-            .offcanvas-menu .navbar-nav .nav-item {
-                margin: 0;
-            }
-
-            .offcanvas-menu .navbar-nav .nav-link {
-                display: block;
-                padding: 10px 15px;
-                color: #000;
-                text-decoration: none;
-            }
-
-            .offcanvas-menu .navbar-nav .dropdown-menu {
-                background: #f8f9fa;
-                border: none;
-                box-shadow: none;
-            }
-
-            .offcanvas-backdrop {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 1040;
-                display: none;
-            }
-
-            .offcanvas-backdrop.show {
-                display: block;
-            }
-
-            .sidebar-extra-info {
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-radius: 5px;
-            }
-
-            .sidebar-extra-info h6 {
-                margin-top: 15px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-
-            .sidebar-extra-info p {
-                font-size: 14px;
-                margin: 5px 0;
-            }
-
-            .sidebar-extra-info a {
-                text-decoration: none;
-            }
-
-            body.no-scroll {
-                overflow: hidden;
-                /* Prevenir el desplazamiento del body */
-            }
-
-            /* Estilos específicos para móviles */
-            @media (max-width: 576px) {
-                .btn-custom {
-                    font-size: 14px;
-                    /* Ajusta el tamaño de la fuente */
-                    padding: 10px 20px;
-                    /* Ajusta el padding */
-                }
-
-                .container-fluid {
-                    padding-left: 15px;
-                    padding-right: 15px;
-                }
-
-                .cart-button {
-                    width: 60px;
-                    /* Ajusta el tamaño del botón */
-                    height: 60px;
-                    /* Ajusta el tamaño del botón */
-                }
-            }
-        </style>
+        updateBackToTopIcon();
+        window.addEventListener('resize', updateBackToTopIcon);
+    });
+</script>
 
         <script>
             document.querySelector('.navbar-toggler').addEventListener('click', function() {
